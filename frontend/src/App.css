@@ -1,0 +1,152 @@
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main-content {
+  flex: 1;
+  max-width: 1120px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .app-main-content {
+    padding: 1.5rem 2rem;
+  }
+}
+
+.section-title {
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.section-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  margin-top: -0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Grid layouts */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+/* Bottom Nav for Mobile */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: space-around;
+  padding: 0.5rem 0.25rem;
+  z-index: 50;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+}
+
+@media (min-width: 768px) {
+  .mobile-bottom-nav {
+    display: none;
+  }
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  min-width: 60px;
+  transition: all 0.2s ease;
+}
+
+.nav-item.active {
+  color: var(--primary);
+  background: var(--primary-subtle);
+}
+
+.nav-item.active svg {
+  stroke: var(--primary);
+}
+
+/* Desktop Header Navigation */
+.desktop-nav-tabs {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .desktop-nav-tabs {
+    display: flex;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 0.25rem;
+    border-radius: var(--radius-full);
+  }
+  
+  .desktop-tab {
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-full);
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s ease;
+  }
+  
+  .desktop-tab:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .desktop-tab.active {
+    color: var(--primary-dark);
+    background: #ffffff;
+    box-shadow: var(--shadow-sm);
+  }
+}
