@@ -1,0 +1,153 @@
+{
+  "language": {
+    "code": "en",
+    "name": "English",
+    "native_name": "English",
+    "direction": "ltr"
+  },
+  "schemes": {
+    "pm_kisan": {
+      "name": "PM Kisan Samman Nidhi",
+      "description": "Central Sector scheme providing income support of ₹6,000 per year to all landholding farmer families across the country.",
+      "benefits": "₹6,000 per year paid in three equal installments of ₹2,000 directly transferred to Aadhaar-seeded bank accounts every four months.",
+      "required_documents": [
+        "Aadhaar Card",
+        "Land Ownership Document (Record of Rights / 7/12 / Khatauni / Patta)",
+        "Aadhaar-seeded Bank Passbook",
+        "Active Mobile Number linked to Aadhaar"
+      ],
+      "application_steps": [
+        "Visit the official PM-KISAN portal (https://pmkisan.gov.in) and select 'New Farmer Registration' under Farmers Corner.",
+        "Enter your Aadhaar number and registered mobile number, then verify via OTP.",
+        "Select your State, District, Sub-District, Block, and Village from the dropdowns.",
+        "Enter personal details, bank account details, and land parcel survey / khasra numbers.",
+        "Upload land ownership documents and submit the application for state verification."
+      ]
+    },
+    "pmfby_crop_insurance": {
+      "name": "Pradhan Mantri Fasal Bima Yojana (PMFBY)",
+      "description": "Comprehensive yield-based crop insurance scheme protecting farmers against non-preventable natural risks, crop damage, pests, and unseasonal weather.",
+      "benefits": "Full sum insured payout against natural perils (drought, flood, unseasonal rains, pest attacks) with minimal farmer premium: 2% for Kharif crops, 1.5% for Rabi crops, and 5% for annual commercial/horticultural crops.",
+      "required_documents": [
+        "Aadhaar Card",
+        "Sowing Certificate / Crop Sowing Declaration (issued by Patwari / Village Officer)",
+        "Land Record Document (RoR / 7/12 / RTC) or Valid Tenancy Agreement",
+        "Bank Account Passbook / Cancelled Cheque",
+        "Kisan Credit Card (KCC) account details if availed"
+      ],
+      "application_steps": [
+        "Visit the official PMFBY National Crop Insurance Portal (https://pmfby.gov.in).",
+        "Click 'Farmer Corner' and sign in using your mobile number or create a new user account.",
+        "Select Scheme, Season (Kharif/Rabi), Year, State, and Insured Crop.",
+        "Provide land survey number and crop sowing area in acres/hectares.",
+        "Upload sowing certificate and land ownership or tenancy proof.",
+        "Pay the subsidized farmer premium online or complete enrollment at the nearest CSC center / Bank branch."
+      ]
+    },
+    "pmksy_pdmc_micro_irrigation": {
+      "name": "PMKSY - Per Drop More Crop (Micro Irrigation)",
+      "description": "Centrally sponsored scheme promoting precision water management through Drip and Sprinkler irrigation systems with substantial capital subsidy.",
+      "benefits": "Up to 55% financial subsidy for Small and Marginal farmers (holding up to 5 acres / 2 hectares) and up to 45% subsidy for other farmers on the benchmark cost of drip and sprinkler irrigation installations.",
+      "required_documents": [
+        "Aadhaar Card",
+        "Updated Land Record (7/12 extract / Khatauni / RTC)",
+        "Proof of Assured Water Source (Borewell / Open Well / Canal / Farm Pond electricity connection bill)",
+        "Soil and Water Quality Testing Certificate",
+        "Bank Account Passbook copy",
+        "Quotation / Design layout from empaneled micro-irrigation manufacturer"
+      ],
+      "application_steps": [
+        "Register on your State Horticulture / Agriculture Department DBT Portal or PMKSY portal.",
+        "Submit farmer identity details, land survey number, and crop cultivation plan.",
+        "Choose an empaneled micro-irrigation equipment manufacturer and obtain system design.",
+        "Submit the application for administrative approval and field verification by Assistant Director of Horticulture/Agriculture.",
+        "Post-installation GPS verification is conducted, and subsidy is directly credited to bank account via DBT."
+      ]
+    },
+    "kcc_kisan_credit_card": {
+      "name": "Kisan Credit Card (KCC) Scheme",
+      "description": "Institutional short-term crop loan and working capital credit facility at highly concessional interest rates for agricultural and allied activities.",
+      "benefits": "Short-term agricultural credit up to ₹3,00,000 at an effective subsidized interest rate of 4% per annum (with 3% prompt repayment incentive). Collateral-free credit limit up to ₹1,60,000.",
+      "required_documents": [
+        "Duly completed KCC Application Form",
+        "Identity Proof (Aadhaar Card / Voter ID / PAN Card)",
+        "Address Proof (Aadhaar Card / Electricity Bill)",
+        "Land Record Details (Khatauni / 7/12 / RTC) or Crop Tenancy Certificate",
+        "Cropping pattern and cultivated acreage details",
+        "Two Passport-size photographs"
+      ],
+      "application_steps": [
+        "Download the standard one-page KCC loan application form from the Ministry of Agriculture portal or visit your nearest Bank branch / CSC.",
+        "Fill out farmer personal information, operational landholding details, and proposed crop cultivation.",
+        "Attach copies of Aadhaar, land records, and crop details.",
+        "Submit the application to any Commercial Bank, Regional Rural Bank (RRB), or Cooperative Bank.",
+        "The bank inspects and issues the KCC Smart Card / RuPay Kisan Card within 14 working days."
+      ]
+    },
+    "smam_farm_mechanization": {
+      "name": "Sub-Mission on Agricultural Mechanization (SMAM)",
+      "description": "Financial subsidy assistance for procurement of modern agricultural machinery, power tillers, tractors, rotavators, and custom hiring centers.",
+      "benefits": "40% to 50% capital subsidy (up to 50% for Small, Marginal, SC/ST, and Women farmers; 40% for other farmers) on individual farm implements, power tillers, reapers, seed drills, and up to 80% subsidy for village Custom Hiring Centers.",
+      "required_documents": [
+        "Aadhaar Card",
+        "Land Ownership Record (7/12 / Khatauni / RoR)",
+        "Aadhaar-linked Bank Account Passbook",
+        "Caste Certificate (for SC/ST subsidy benefits)",
+        "Passport size photograph",
+        "Proforma Invoice from authorized farm equipment dealer"
+      ],
+      "application_steps": [
+        "Register on the official Farmech Portal (https://agrimachinery.nic.in).",
+        "Select 'Farmer Registration' and enter Aadhaar details, farmer category, and district.",
+        "Select the desired agricultural implement / machine and approved manufacturer/dealer.",
+        "Upload land record document, bank passbook copy, and photo.",
+        "Upon administrative sanction, procure the equipment and upload the purchase invoice for DBT subsidy credit."
+      ]
+    },
+    "soil_health_card_scheme": {
+      "name": "Soil Health Card Scheme",
+      "description": "Nationwide soil testing scheme providing periodic farm-level soil nutrient status reports and tailored fertilizer & micronutrient recommendations.",
+      "benefits": "Free comprehensive soil health test report evaluating 12 key soil parameters (Nitrogen, Phosphorus, Potassium, Sulphur, Zinc, Iron, Copper, Manganese, Boron, pH, Electrical Conductivity, and Organic Carbon) along with crop-specific fertilizer dosage guidance.",
+      "required_documents": [
+        "Aadhaar Card",
+        "Land Survey Number / Khasra details",
+        "Current cropping history and next planned crop details"
+      ],
+      "application_steps": [
+        "Contact your local Gram Panchayat Agriculture Extension Officer (Kisan Mitra / Gram Sevak) or visit the nearest Soil Testing Laboratory.",
+        "Provide your land survey details for GPS-referenced soil sampling from your farm field.",
+        "Soil samples are analyzed at authorized district/block soil testing laboratories.",
+        "Download or collect your printed Soil Health Card with tailored nutrient recommendations from https://soilhealth.dac.gov.in."
+      ]
+    }
+  },
+  "reasons": {
+    "eligible_all_criteria_met": "You meet all eligibility criteria for this scheme.",
+    "land_within_limits": "Your landholding of {acres} acres satisfies the scheme requirement.",
+    "land_exceeds_maximum": "Your landholding of {acres} acres exceeds the maximum eligibility limit of {max} acres.",
+    "land_below_minimum": "Your landholding of {acres} acres is below the minimum requirement of {min} acres.",
+    "crop_matches": "Your crop ({crop}) is covered under this scheme.",
+    "crop_not_eligible": "Your crop ({crop}) is not covered under this scheme (Eligible crops: {allowed_crops}).",
+    "state_matches": "Scheme is active and available in your state ({state}).",
+    "state_not_eligible": "This scheme is restricted to {allowed_states} and is not applicable in {state}.",
+    "ownership_required": "This scheme requires cultivable land ownership.",
+    "ownership_satisfied": "Farmer meets the land ownership requirement.",
+    "irrigation_source_required": "Scheme requires an assured irrigation water source on the farm.",
+    "irrigation_source_satisfied": "Farmer has an assured irrigation source.",
+    "tax_payer_ineligible": "Income-tax paying farmers/families are excluded from this scheme.",
+    "age_ineligible": "Applicant age ({age} years) is outside the eligible range ({min_age}-{max_age} years)."
+  },
+  "labels": {
+    "eligible": "Eligible",
+    "not_eligible": "Not Eligible",
+    "partially_eligible": "Verification Needed",
+    "benefits": "Benefits",
+    "required_documents": "Required Documents",
+    "application_steps": "How to Apply",
+    "department": "Department",
+    "official_portal": "Official Portal",
+    "apply_online": "Apply Online",
+    "status_active": "Active",
+    "listen_audio": "Listen in English"
+  }
+}
