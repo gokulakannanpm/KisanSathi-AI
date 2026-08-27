@@ -15,5 +15,13 @@ router = APIRouter(
     "/current",
     summary="Get current live weather forecast and agricultural advisory"
 )
-def get_weather(farmer_id: Optional[str] = Query(None, description="Optional farmer profile ID")):
-    return weather_service.get_current_weather(farmer_id=farmer_id)
+def get_weather(
+    farmer_id: Optional[str] = Query(None, description="Optional farmer profile ID"),
+    lat: Optional[float] = Query(None, description="Optional latitude coordinate"),
+    lon: Optional[float] = Query(None, description="Optional longitude coordinate")
+):
+    return weather_service.get_current_weather(
+        farmer_id=farmer_id,
+        latitude=lat,
+        longitude=lon
+    )

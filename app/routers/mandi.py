@@ -13,10 +13,19 @@ router = APIRouter(
 
 @router.get(
     "/price",
-    summary="Get live or benchmark APMC mandi market prices"
+    summary="Get live or fallback APMC mandi market prices"
 )
 def get_prices(
     crop: Optional[str] = Query(None, description="Filter by crop name (e.g. cotton, soybean)"),
-    state: Optional[str] = Query(None, description="Filter by state (e.g. Maharashtra)")
+    commodity: Optional[str] = Query(None, description="Filter by commodity name"),
+    state: Optional[str] = Query(None, description="Filter by state (e.g. Maharashtra)"),
+    district: Optional[str] = Query(None, description="Filter by district (e.g. Nagpur)"),
+    market: Optional[str] = Query(None, description="Filter by market name (e.g. Nagpur APMC)")
 ):
-    return mandi_service.get_prices(crop_filter=crop, state_filter=state)
+    crop_term = crop or commodity
+    return mandi_service.get_prices(
+        crop_filter=crop_term,
+        state_filter=state,
+        district_filter=district,
+        market_filter=market
+    )
