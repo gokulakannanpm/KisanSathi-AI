@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query, Response, status
 from pydantic import BaseModel, Field
 
+from app.services.farmer_service import farmer_service
 from app.services.scheme_engine import scheme_engine
 from app.services.tts_service import tts_service
 
@@ -78,32 +79,38 @@ def _resolve_farmer_profile(
     """
     profile: Dict[str, Any] = {}
 
-    # Try to load demo farmer profile if farmer_id is specified or by default
+    # Try to load real farmer profile if farmer_id is specified
     if farmer_id:
-        demo_profile = scheme_engine.get_demo_farmer_profile()
-        if demo_profile:
-            profile.update(demo_profile)
+        try:
+            real_profile = farmer_service.get_farmer_profile(farmer_id)
+            if real_profile:
+                profile.update(real_profile)
+        except Exception as e:
+            logger.debug(f"Failed to fetch farmer profile for '{farmer_id}': {e}")
+            demo_profile = scheme_engine.get_demo_farmer_profile()
+            if demo_profile:
+                profile.update(demo_profile)
         profile["id"] = farmer_id
     elif any(x is not None for x in [land_acres, crop, state, category]):
         # Farmer context constructed on-the-fly from query parameters
         profile["id"] = "custom_query_farmer"
 
-    # Overlay any explicitly passed override query parameters
-    if land_acres is not None:
-        profile["land_size_acres"] = land_acres
-    if crop is not None:
+    # Overlay any explicitly passed override query parameters (if valid types)
+    if isinstance(land_acres, (int, float)):
+        profile["land_size_acres"] = float(land_acres)
+    if isinstance(crop, str) and crop.strip():
         profile["crops"] = [c.strip() for c in crop.split(",") if c.strip()]
-    if state is not None:
-        profile["state"] = state
-    if category is not None:
-        profile["farmer_category"] = category
-    if owns_land is not None:
+    if isinstance(state, str) and state.strip():
+        profile["state"] = state.strip()
+    if isinstance(category, str) and category.strip():
+        profile["farmer_category"] = category.strip()
+    if isinstance(owns_land, bool):
         profile["owns_land"] = owns_land
-    if has_irrigation is not None:
+    if isinstance(has_irrigation, bool):
         profile["has_irrigation"] = has_irrigation
-    if is_tax_payer is not None:
+    if isinstance(is_tax_payer, bool):
         profile["is_tax_payer"] = is_tax_payer
-    if age is not None:
+    if isinstance(age, int):
         profile["age"] = age
 
     return profile if profile else None

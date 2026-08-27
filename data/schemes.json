@@ -76,10 +76,10 @@
     "name": "PMKSY - Per Drop More Crop (Micro Irrigation)",
     "description": "Centrally sponsored scheme promoting precision water management through Drip and Sprinkler irrigation systems with substantial capital subsidy.",
     "eligibility_rules": {
-      "max_land_acres": null,
+      "max_land_acres": 5.0,
       "min_land_acres": 0.2,
       "crop_types": ["any"],
-      "farmer_categories": ["all", "small", "marginal", "medium", "large"],
+      "farmer_categories": ["small", "marginal"],
       "state_restricted": null,
       "requires_land_ownership": true,
       "requires_irrigation_source": true,

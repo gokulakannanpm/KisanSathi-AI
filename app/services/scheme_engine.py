@@ -323,6 +323,17 @@ class SchemeEngine:
             else:
                 criteria_eval["age_criteria"] = f"PASSED: Age {farmer_age} within eligible range"
 
+        # 9. Farmer Category Rule (e.g. Small / Marginal Only)
+        allowed_cats = rules.get("farmer_categories")
+        if allowed_cats and isinstance(allowed_cats, list) and "all" not in allowed_cats and "any" not in allowed_cats:
+            if farmer_category and farmer_category.lower() not in [c.lower() for c in allowed_cats]:
+                is_eligible = False
+                cats_str = ", ".join(allowed_cats)
+                reasons.append(f"Farmer category '{farmer_category.capitalize()}' is excluded (Eligible categories: {cats_str}).")
+                criteria_eval["category_criteria"] = f"FAILED: Category '{farmer_category}' excluded (Restricted to: {cats_str})"
+            elif farmer_category:
+                criteria_eval["category_criteria"] = f"PASSED: Category '{farmer_category}' eligible"
+
         # If eligible and no negative reasons logged, add general success statement
         if is_eligible and not reasons:
             reasons.append(get_msg("eligible_all_criteria_met"))

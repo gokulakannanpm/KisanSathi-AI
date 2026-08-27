@@ -16,10 +16,12 @@ class WeatherService:
         longitude: Optional[float] = None
     ) -> Dict[str, Any]:
         district = None
+        state = None
         if farmer_id:
             try:
                 profile = farmer_service.get_farmer_profile(farmer_id)
                 district = profile.get("district")
+                state = profile.get("state")
             except Exception as e:
                 logger.debug(f"Could not load farmer profile for {farmer_id}: {e}")
 
@@ -27,7 +29,8 @@ class WeatherService:
             farmer_id=farmer_id,
             latitude=latitude,
             longitude=longitude,
-            district=district
+            district=district,
+            state=state
         )
 
 

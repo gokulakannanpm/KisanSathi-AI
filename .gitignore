@@ -223,3 +223,8 @@ data/audio_cache/
 # SQLite Database
 kisansathi.db
 
+# Node Modules
+node_modules/
+frontend/node_modules/
+
+

@@ -64,13 +64,22 @@ class WeatherProvider:
                 return DISTRICT_COORDINATES[key]
         return (21.1458, 79.0882)  # Default: Nagpur, MH
 
-    def get_fallback_weather(self, reason: str = "Live API timeout or offline") -> Dict[str, Any]:
+    def get_fallback_weather(self, reason: str = "Live API timeout or offline", state: Optional[str] = None) -> Dict[str, Any]:
         if self.mock_weather_file.exists():
             try:
                 with open(self.mock_weather_file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
+                    data_map = json.load(f)
+                    if isinstance(data_map, dict):
+                        st_key = state if state and state in data_map else "default"
+                        if st_key not in data_map and "Maharashtra" in data_map:
+                            st_key = "Maharashtra"
+                        block = data_map.get(st_key, data_map.get("default", {}))
+                        data = dict(block)
+                    else:
+                        data = dict(data_map)
+
                     data["source"] = "fallback"
-                    data["source_name"] = "Deterministic Demo Weather (Fallback)"
+                    data["source_name"] = data.get("source_name", "Deterministic State Weather (Fallback)")
                     data["fallback_reason"] = reason
                     data["fetched_at"] = datetime.utcnow().isoformat() + "Z"
                     return data
@@ -210,7 +219,8 @@ class WeatherProvider:
         farmer_id: Optional[str] = None,
         latitude: Optional[float] = None,
         longitude: Optional[float] = None,
-        district: Optional[str] = None
+        district: Optional[str] = None,
+        state: Optional[str] = None
     ) -> Dict[str, Any]:
         # If lat/lon not explicitly passed, resolve from district
         if latitude is None or longitude is None:
@@ -220,7 +230,7 @@ class WeatherProvider:
         if live_data:
             return live_data
 
-        return self.get_fallback_weather(reason="Live weather provider unreachable; using fallback cache.")
+        return self.get_fallback_weather(reason="Live weather provider unreachable; using fallback cache.", state=state)
 
 
 weather_provider = WeatherProvider()
