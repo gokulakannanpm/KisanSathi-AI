@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
   Sparkles, 
@@ -13,16 +13,50 @@ import { useFarmer } from '../../context/FarmerContext';
 import { apiService } from '../../services/api';
 
 export const AIExplainerModal = () => {
-  const { isAiModalOpen, closeAiExplainer, aiModalContext, t } = useFarmer();
-  const [messages, setMessages] = useState([
-    {
-      sender: 'ai',
-      text: aiModalContext?.ai_explanation || 
-            `Hello Ramesh Kumar! I am your KisanSathi AI Assistant. Based on your 2.5 acre farm memory and live Nagpur Doppler radar data, I can explain why delaying tomorrow's pesticide spraying saves you ₹1,800 and prevents chemical rain washout. What would you like to know?`
-    }
-  ]);
+  const { isAiModalOpen, closeAiExplainer, aiModalContext, farmerId, farmer } = useFarmer();
+  const [messages, setMessages] = useState([]);
   const [inputQuestion, setInputQuestion] = useState('');
   const [loading, setLoading] = useState(false);
+  const [providerUsed, setProviderUsed] = useState('');
+
+  // Fetch initial AI explanation from backend when modal opens
+  useEffect(() => {
+    if (isAiModalOpen) {
+      let isMounted = true;
+      setLoading(true);
+
+      apiService.askAiExplain({
+        farmer_id: farmerId || farmer?.id || 'demo_farmer_01',
+        context: aiModalContext
+      }).then(res => {
+        if (!isMounted) return;
+        setProviderUsed(res.provider_used || 'KisanSathi Farm Intelligence Engine');
+        setMessages([
+          {
+            sender: 'ai',
+            text: res.explanation_text,
+            action_steps: res.action_steps,
+            provider: res.provider_used
+          }
+        ]);
+      }).catch(err => {
+        if (!isMounted) return;
+        console.error("AI Explainer fetch error:", err);
+        setMessages([
+          {
+            sender: 'ai',
+            text: aiModalContext?.ai_explanation || `Analysis based on live farm memory and regional atmospheric radar conditions.`
+          }
+        ]);
+      }).finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+      return () => {
+        isMounted = false;
+      };
+    }
+  }, [isAiModalOpen, farmerId, aiModalContext]);
 
   if (!isAiModalOpen) return null;
 
@@ -37,10 +71,12 @@ export const AIExplainerModal = () => {
 
     try {
       const response = await apiService.askAiExplain({
+        farmer_id: farmerId || farmer?.id || 'demo_farmer_01',
         question: userText,
-        farmer_context: "Ramesh Kumar (2.5 Acres Cotton/Soybean, Nagpur, Maharashtra)",
-        decision_context: aiModalContext
+        context: aiModalContext
       });
+
+      setProviderUsed(response.provider_used || providerUsed);
 
       setMessages(prev => [
         ...prev, 
@@ -51,6 +87,8 @@ export const AIExplainerModal = () => {
           provider: response.provider_used
         }
       ]);
+    } catch (e) {
+      console.error("AI question fetch error:", e);
     } finally {
       setLoading(false);
     }
@@ -75,11 +113,26 @@ export const AIExplainerModal = () => {
               <Sparkles size={20} />
             </div>
             <div>
-              <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a' }}>
-                KisanSathi AI Farm Assistant
-              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a' }}>
+                  KisanSathi AI Farm Assistant
+                </h2>
+                {providerUsed && (
+                  <span style={{
+                    fontSize: '0.65rem',
+                    fontWeight: 700,
+                    background: providerUsed.includes("Offline") ? "#fef3c7" : "#dcfce7",
+                    color: providerUsed.includes("Offline") ? "#b45309" : "#15803d",
+                    padding: '0.15rem 0.45rem',
+                    borderRadius: '999px',
+                    border: `1px solid ${providerUsed.includes("Offline") ? "#fcd34d" : "#86efac"}`
+                  }}>
+                    {providerUsed.includes("Offline") ? "Fallback Mode" : "Live Rule AI Engine"}
+                  </span>
+                )}
+              </div>
               <p style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                Contextual agricultural reasoning & plain-language explanations
+                Contextual agricultural reasoning & plain-language explanations for {farmer?.name || 'Farmer'}
               </p>
             </div>
           </div>
@@ -136,9 +189,9 @@ export const AIExplainerModal = () => {
               }}>
                 {msg.text}
 
-                {msg.action_steps && (
+                {msg.action_steps && msg.action_steps.length > 0 && (
                   <div style={{ marginTop: '0.75rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(0,0,0,0.1)' }}>
-                    <strong>Recommended Steps:</strong>
+                    <strong>Recommended Action Steps:</strong>
                     <ul style={{ paddingLeft: '1.2rem', marginTop: '0.25rem' }}>
                       {msg.action_steps.map((st, i) => (
                         <li key={i}>{st}</li>
@@ -176,6 +229,7 @@ export const AIExplainerModal = () => {
           />
           <button
             type="submit"
+            disabled={loading}
             className="btn-primary"
             style={{ borderRadius: 'var(--radius-full)', padding: '0.65rem 1.25rem' }}
           >

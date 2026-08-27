@@ -15,10 +15,28 @@ import {
 import { useFarmer } from '../../context/FarmerContext';
 
 export const HeroRecommendation = () => {
-  const { recommendation, t, openAiExplainer, diary } = useFarmer();
-  const [completed, setCompleted] = useState(false);
+  const { recommendation, acknowledgeRecommendationAction, t, openAiExplainer } = useFarmer();
+  const [submitting, setSubmitting] = useState(false);
 
   if (!recommendation) return null;
+
+  const isCompleted = recommendation.is_acknowledged;
+
+  const handleToggleAcknowledge = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      await acknowledgeRecommendationAction({
+        action_key: "postpone_action",
+        status: isCompleted ? "pending" : "postponed",
+        postponed_to_date: recommendation.recommended_new_date || "Saturday, 29 August 2026"
+      });
+    } catch (e) {
+      console.error("Failed to acknowledge action:", e);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <section 
@@ -54,7 +72,7 @@ export const HeroRecommendation = () => {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: '#78350f', fontWeight: 600 }}>
           <Clock size={14} />
-          <span>Active Farm Alert</span>
+          <span>{isCompleted ? (recommendation.status_label || 'Acknowledged & Rescheduled') : 'Active Farm Alert'}</span>
         </div>
       </div>
 
@@ -175,15 +193,16 @@ export const HeroRecommendation = () => {
         </button>
 
         <button
-          onClick={() => setCompleted(!completed)}
+          onClick={handleToggleAcknowledge}
+          disabled={submitting}
           className="btn-secondary"
           style={{
-            background: completed ? '#dcfce7' : '#ffffff',
-            borderColor: completed ? '#86efac' : 'var(--border-medium)',
-            color: completed ? '#166534' : 'var(--text-main)'
+            background: isCompleted ? '#dcfce7' : '#ffffff',
+            borderColor: isCompleted ? '#86efac' : 'var(--border-medium)',
+            color: isCompleted ? '#166534' : 'var(--text-main)'
           }}
         >
-          {completed ? (
+          {isCompleted ? (
             <>
               <Check size={18} color="#166534" />
               <span>{t.actionPostponed}</span>
@@ -191,7 +210,7 @@ export const HeroRecommendation = () => {
           ) : (
             <>
               <ShieldCheck size={18} />
-              <span>Acknowledge & Postpone</span>
+              <span>{submitting ? 'Saving...' : 'Acknowledge & Postpone'}</span>
             </>
           )}
         </button>

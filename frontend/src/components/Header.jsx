@@ -9,10 +9,12 @@ import {
   UserCheck 
 } from 'lucide-react';
 import { useFarmer } from '../context/FarmerContext';
-import { SUPPORTED_LANGUAGES } from '../config/constants';
+import { DEMO_FARMERS, SUPPORTED_LANGUAGES } from '../config/constants';
 
 export const Header = () => {
   const { 
+    farmerId,
+    switchFarmer,
     language, 
     setLanguage, 
     t, 
@@ -87,28 +89,45 @@ export const Header = () => {
           </div>
         </div>
 
-        {/* Right: Farmer badge, Backend indicator & Language Switcher */}
+        {/* Right: Farmer Selector, Backend indicator & Language Switcher */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           
-          {/* Farmer Location Pill */}
-          {farmer && (
-            <div style={{
-              display: 'none',
-              alignItems: 'center',
-              gap: '0.35rem',
-              background: 'rgba(255, 255, 255, 0.12)',
-              padding: '0.35rem 0.75rem',
-              borderRadius: '999px',
-              fontSize: '0.8rem',
-              fontWeight: 600
-            }} className="md-flex">
-              <UserCheck size={14} color="#86efac" />
-              <span>{farmer.name}</span>
-              <span style={{ opacity: 0.6 }}>•</span>
-              <MapPin size={12} />
-              <span>{farmer.district}, {farmer.state}</span>
-            </div>
-          )}
+          {/* Multi-Farmer Selector Dropdown */}
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            background: 'rgba(255, 255, 255, 0.18)',
+            borderRadius: '999px',
+            padding: '0.25rem 0.65rem',
+            border: '1px solid rgba(255, 255, 255, 0.35)',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+          }}>
+            <UserCheck size={15} style={{ marginRight: '0.35rem', color: '#86efac' }} />
+            <select
+              value={farmerId}
+              onChange={(e) => switchFarmer(e.target.value)}
+              aria-label="Select Demo Farmer Profile"
+              style={{
+                background: 'transparent',
+                color: 'white',
+                border: 'none',
+                fontWeight: 700,
+                fontSize: '0.82rem',
+                cursor: 'pointer',
+                outline: 'none'
+              }}
+            >
+              {DEMO_FARMERS.map((f) => (
+                <option 
+                  key={f.id} 
+                  value={f.id} 
+                  style={{ color: '#0f172a', background: '#ffffff', fontWeight: 600 }}
+                >
+                  {f.name} ({f.location} - {f.land})
+                </option>
+              ))}
+            </select>
+          </div>
 
           {/* Backend Connection Indicator */}
           <div 

@@ -1,0 +1,103 @@
+{
+  "timestamp": "2026-08-27T06:26:56.075Z",
+  "frontend": "http://localhost:5174",
+  "backend": "http://localhost:8000",
+  "actions": [
+    {
+      "name": "Dashboard loads",
+      "status": "PASS",
+      "details": "Title: KisanSathi AI — Personalized Agricultural Intelligence"
+    },
+    {
+      "name": "UI contains \"Farm Memory\"",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "UI contains \"Live Weather\"",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "UI contains \"Mandi\"",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "UI contains \"AI\"",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "UI contains \"Recommendation\"",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Farmer profile interaction",
+      "status": "PASS",
+      "details": "Clicked \"Farmer Context\""
+    },
+    {
+      "name": "Weather interaction",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Mandi navigation",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "AI explainer interaction",
+      "status": "PASS",
+      "details": "Clicked \"Explain Why\""
+    },
+    {
+      "name": "Full diary navigation",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Add Diary Entry opens",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Acknowledge & Postpone button exists",
+      "status": "PASS",
+      "details": "Manual persistence test required"
+    },
+    {
+      "name": "Backend health",
+      "status": "PASS",
+      "details": "HTTP 200"
+    }
+  ],
+  "consoleErrors": [],
+  "failedRequests": [],
+  "badResponses": [],
+  "interactiveElements": {
+    "buttons": [
+      "Ask AI",
+      "Dashboard",
+      "Govt Schemes",
+      "Weather",
+      "Mandi Prices",
+      "Farm Diary",
+      "My Farm",
+      "Dashboard",
+      "Govt Schemes",
+      "Weather",
+      "Mandi Prices",
+      "Farm Diary",
+      "My Farm",
+      "How Loop Works",
+      "Explain Why (Ask AI)",
+      "Acknowledge & Postpone",
+      "Add Entry",
+      "View Full Farm Timeline & Diary History"
+    ],
+    "links": []
+  }
+}

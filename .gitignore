@@ -219,3 +219,7 @@ __marimo__/
 
 # Audio Cache
 data/audio_cache/
+
+# SQLite Database
+kisansathi.db
+

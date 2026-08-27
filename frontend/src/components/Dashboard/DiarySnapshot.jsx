@@ -4,7 +4,7 @@ import { useFarmer } from '../../context/FarmerContext';
 
 export const DiarySnapshot = ({ onAddEntryClick }) => {
   const { diary, t, setActiveTab } = useFarmer();
-  const recentEntries = diary.slice(0, 3);
+  const recentEntries = diary.slice(0, 5);
 
   return (
     <div className="ks-card">

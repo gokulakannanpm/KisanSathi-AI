@@ -102,7 +102,25 @@ export const apiService = {
     }
   },
 
-  // 6. Multilingual Government Schemes
+  // 6. Action Acknowledgement & Postponement Persistence
+  acknowledgeAction: async (farmerId = DEFAULT_FARMER_ID, payload = {}) => {
+    try {
+      const res = await fetch(`${API_BASE}/recommendation/${farmerId}/acknowledge`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      isBackendAvailable = true;
+      return data;
+    } catch (e) {
+      console.warn(`[KisanSathi API] Acknowledge action backend call failed.`);
+      return { status: 'postponed', ...payload };
+    }
+  },
+
+  // 7. Multilingual Government Schemes
   getSchemes: async (farmerId = DEFAULT_FARMER_ID, language = 'en') => {
     try {
       const res = await fetch(`${API_BASE}/schemes?farmer_id=${farmerId}&language=${language}`);
@@ -115,7 +133,7 @@ export const apiService = {
     }
   },
 
-  // 7. Scheme Eligibility Check
+  // 8. Scheme Eligibility Check
   getSchemeEligibility: async (schemeId, farmerId = DEFAULT_FARMER_ID, language = 'en') => {
     try {
       const res = await fetch(`${API_BASE}/schemes/${schemeId}/eligibility?farmer_id=${farmerId}&language=${language}`);
@@ -134,7 +152,7 @@ export const apiService = {
     }
   },
 
-  // 8. AI Explainer Assistant
+  // 9. AI Explainer Assistant
   askAiExplain: async (contextPayload) => {
     try {
       const res = await fetch(`${API_BASE}/ai/explain`, {
@@ -144,17 +162,19 @@ export const apiService = {
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
+      isBackendAvailable = true;
       return data;
     } catch (e) {
       // Intelligent contextual mock response
       return {
-        explanation_text: `Based on your 2.5 acre farm memory and live radar data: The scheduled pesticide application should be delayed by 48-72 hours. Heavy rain (>45mm) forecast for Nagpur will wash off spray within 2 hours. By postponing until Saturday morning, you ensure full pest protection for your cotton crop and save ₹1,800.`,
+        explanation_text: `Based on your farm memory and live radar data: The scheduled action has been evaluated. Heavy rain forecast for your region will cause input washout. Postponing ensures full protection and saves re-application expenses.`,
         provider_used: "KisanSathi Farm Intelligence Engine (Offline Fallback)",
         action_steps: [
           "Do not mix chemicals today to avoid degradation",
-          "Ensure field drainage is unclogged before 12:00 PM tomorrow",
-          "Perform spraying on Saturday between 07:00 AM and 10:00 AM"
-        ]
+          "Ensure field drainage is unclogged before tomorrow",
+          "Perform operation during the recommended safe window"
+        ],
+        confidence: 95
       };
     }
   }

@@ -6,6 +6,7 @@ import { DEFAULT_FARMER_ID } from '../config/constants';
 const FarmerContext = createContext();
 
 export const FarmerProvider = ({ children }) => {
+  const [farmerId, setFarmerId] = useState(DEFAULT_FARMER_ID);
   const [language, setLanguage] = useState('en');
   const [activeTab, setActiveTab] = useState('dashboard');
   
@@ -22,17 +23,17 @@ export const FarmerProvider = ({ children }) => {
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiModalContext, setAiModalContext] = useState(null);
 
-  // Load all initial data
-  const loadData = async (lang = language) => {
+  // Load all initial data for a specific farmer and language
+  const loadData = async (lang = language, targetFarmerId = farmerId) => {
     setLoading(true);
     try {
       const [profileData, diaryData, weatherData, mandiData, recData, schemesData] = await Promise.all([
-        apiService.getFarmerProfile(DEFAULT_FARMER_ID),
-        apiService.getDiaryEntries(DEFAULT_FARMER_ID),
-        apiService.getCurrentWeather(DEFAULT_FARMER_ID),
+        apiService.getFarmerProfile(targetFarmerId),
+        apiService.getDiaryEntries(targetFarmerId),
+        apiService.getCurrentWeather(targetFarmerId),
         apiService.getMandiPrices(),
-        apiService.getRecommendation(DEFAULT_FARMER_ID),
-        apiService.getSchemes(DEFAULT_FARMER_ID, lang)
+        apiService.getRecommendation(targetFarmerId),
+        apiService.getSchemes(targetFarmerId, lang)
       ]);
 
       setFarmer(profileData);
@@ -50,14 +51,31 @@ export const FarmerProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    loadData(language);
-  }, [language]);
+    loadData(language, farmerId);
+  }, [language, farmerId]);
+
+  // Switch Active Farmer (Multi-Farmer Personalization)
+  const switchFarmer = (newFarmerId) => {
+    setFarmerId(newFarmerId);
+  };
 
   // Add Diary Entry
   const addDiaryEntry = async (entry) => {
-    const saved = await apiService.addDiaryEntry(DEFAULT_FARMER_ID, entry);
+    const saved = await apiService.addDiaryEntry(farmerId, entry);
     setDiary(prev => [saved, ...prev]);
     return saved;
+  };
+
+  // Acknowledge / Postpone Recommendation Action
+  const acknowledgeRecommendationAction = async (payload = {}) => {
+    const ackRes = await apiService.acknowledgeAction(farmerId, payload);
+    setRecommendation(prev => ({
+      ...prev,
+      is_acknowledged: true,
+      acknowledged_status: ackRes.status || 'postponed',
+      status_label: `Acknowledged & Rescheduled`
+    }));
+    return ackRes;
   };
 
   // Update Farmer Profile locally (e.g. for simulator)
@@ -68,7 +86,7 @@ export const FarmerProvider = ({ children }) => {
     }));
   };
 
-  // Open AI Explainer
+  // Open AI Explainer Modal
   const openAiExplainer = (context = null) => {
     setAiModalContext(context || recommendation);
     setIsAiModalOpen(true);
@@ -84,6 +102,8 @@ export const FarmerProvider = ({ children }) => {
 
   return (
     <FarmerContext.Provider value={{
+      farmerId,
+      switchFarmer,
       language,
       setLanguage,
       t,
@@ -96,9 +116,10 @@ export const FarmerProvider = ({ children }) => {
       weather,
       mandiPrices,
       recommendation,
+      acknowledgeRecommendationAction,
       schemes,
       loading,
-      refreshData: () => loadData(language),
+      refreshData: () => loadData(language, farmerId),
       isBackendConnected,
       selectedScheme,
       setSelectedScheme,

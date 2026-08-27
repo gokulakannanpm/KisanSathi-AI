@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import schemes
+from app.routers import ai, farmer, mandi, recommendation, schemes, weather
 
 app = FastAPI(
     title="KisanSathi AI - Agricultural Intelligence & Government Schemes Platform",
@@ -17,8 +17,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register Schemas / Schemes Router
+# Register Routers
 app.include_router(schemes.router)
+app.include_router(farmer.router)
+app.include_router(weather.router)
+app.include_router(mandi.router)
+app.include_router(recommendation.router)
+app.include_router(ai.router)
 
 
 @app.get("/api/health", tags=["Health"])

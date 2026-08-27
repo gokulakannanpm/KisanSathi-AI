@@ -1,0 +1,79 @@
+===============================================================================
+ KISANSATHI-AI EXTERNAL API & PROVIDER CONFIGURATION DOCUMENTATION
+===============================================================================
+
+This document lists the optional external environment variables and API keys
+that can be configured for live weather, mandi prices, and AI LLM models.
+
+Do NOT put actual secret key values in source code or version control.
+
+-------------------------------------------------------------------------------
+ 1. DATABASE CONFIGURATION
+-------------------------------------------------------------------------------
+Variable Name : DATABASE_URL
+Purpose       : Specifies the database connection string for farmer profiles,
+                diary entries, and persistent action acknowledgements.
+Required for  : All operations (default SQLite database)
+Consumed by   : app/models.py
+Default       : sqlite:///./kisansathi.db
+Configure in  : .env
+
+-------------------------------------------------------------------------------
+ 2. WEATHER PROVIDER CONFIGURATION
+-------------------------------------------------------------------------------
+Variable Name : WEATHER_API_PROVIDER
+Purpose       : Switches between deterministic demo weather and live OpenWeatherMap API.
+Required for  : Live weather forecasts
+Consumed by   : app/services/weather_service.py
+Default       : mock (Deterministic Doppler Radar Dataset)
+Configure in  : .env
+
+Variable Name : OPENWEATHER_API_KEY
+Purpose       : API key for OpenWeatherMap live weather forecast API
+Required for  : Live OpenWeatherMap integration (when WEATHER_API_PROVIDER=openweathermap)
+Consumed by   : app/services/weather_service.py
+Configure in  : .env
+Developer Doc : https://openweathermap.org/api
+
+-------------------------------------------------------------------------------
+ 3. MANDI MARKET PRICES CONFIGURATION
+-------------------------------------------------------------------------------
+Variable Name : MANDI_API_PROVIDER
+Purpose       : Switches between deterministic AGMARKNET market prices and live API.
+Required for  : Live APMC mandi price feeds
+Consumed by   : app/services/mandi_service.py
+Default       : mock (AGMARKNET Live API Baseline Cache)
+Configure in  : .env
+
+Variable Name : MANDI_API_KEY
+Purpose       : API key for Data.gov.in / AGMARKNET live market API
+Required for  : Live AGMARKNET market prices (when MANDI_API_PROVIDER=agmarknet)
+Consumed by   : app/services/mandi_service.py
+Configure in  : .env
+Developer Doc : https://data.gov.in
+
+-------------------------------------------------------------------------------
+ 4. AI LLM INTELLIGENCE CONFIGURATION
+-------------------------------------------------------------------------------
+Variable Name : LLM_PROVIDER
+Purpose       : Switches between deterministic rule-based intelligence engine and live LLM.
+Required for  : Live LLM explanations
+Consumed by   : app/services/recommendation_service.py, app/routers/ai.py
+Default       : rule_based (KisanSathi Farm Intelligence Engine)
+Configure in  : .env
+
+Variable Name : OPENAI_API_KEY
+Purpose       : API key for OpenAI GPT-4o / GPT-3.5 model reasoning
+Required for  : OpenAI live reasoning mode (when LLM_PROVIDER=openai)
+Consumed by   : app/routers/ai.py
+Configure in  : .env
+Developer Doc : https://platform.openai.com/api-keys
+
+Variable Name : GEMINI_API_KEY
+Purpose       : API key for Google Gemini 1.5 Flash / Pro model reasoning
+Required for  : Gemini live reasoning mode (when LLM_PROVIDER=gemini)
+Consumed by   : app/routers/ai.py
+Configure in  : .env
+Developer Doc : https://aistudio.google.com
+
+===============================================================================
