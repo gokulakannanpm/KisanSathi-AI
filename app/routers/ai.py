@@ -2,6 +2,7 @@ import logging
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
+from app.services.ai_provider import ai_provider
 from app.services.farmer_service import farmer_service
 from app.services.recommendation_service import recommendation_service
 
@@ -38,36 +39,32 @@ def explain_recommendation(request: ExplainRequest):
     try:
         farmer = farmer_service.get_farmer_profile(farmer_id)
         rec = recommendation_service.get_recommendation(farmer_id)
-        explanation_text = rec.get("ai_explanation", "")
-        reasoning = rec.get("reasoning", "")
-        confidence = rec.get("confidence", 95)
     except Exception as e:
         logger.warning(f"Failed to fetch context for {farmer_id}: {e}")
-        explanation_text = "Analysis based on live farm memory and regional atmospheric conditions."
-        reasoning = "Farm context processing"
-        confidence = 95
-        farmer = {"name": "Farmer", "district": "District", "land_size_acres": 2.5}
+        farmer = {"name": "Farmer", "district": "District", "land_size_acres": 2.5, "crops": ["cotton"]}
+        rec = {"action": "POSTPONE SPRAYING", "reasoning": "Rain washout risk", "confidence": 95}
 
-    # Custom answer if user asked a question in the modal chat
-    if request.question:
-        q_lower = request.question.lower()
-        if "rain" in q_lower or "weather" in q_lower or "why" in q_lower:
-            explanation_text += f"\n\nIn response to your query ('{request.question}'): Chemical rainfastness requires at least 6-8 hours without rain. Applying active compounds prior to a severe rain event results in chemical runoff into local drainage channels, zero efficacy against target pests, and unnecessary financial loss."
-        elif "cost" in q_lower or "money" in q_lower or "save" in q_lower:
-            explanation_text += f"\n\nIn response to your query ('{request.question}'): By postponing or adjusting your schedule, you prevent chemical re-purchase costs and protect your input budget while maintaining crop health."
-        else:
-            explanation_text += f"\n\nIn response to your query ('{request.question}'): As {farmer.get('name', 'the farmer')} in {farmer.get('district', 'your region')}, adhering to this advisory ensures maximum input efficiency across your {farmer.get('land_size_acres', 2.5)} acre holding."
+    farmer_name = farmer.get("name", "Farmer")
+    district = farmer.get("district", "District")
+    crops_list = farmer.get("crops", ["crop"])
+    crop = crops_list[0] if isinstance(crops_list, list) and crops_list else "crop"
+    land_acres = farmer.get("land_size_acres", 2.5)
 
-    action_steps = [
-        "Do not mix inputs or prep equipment prematurely to avoid degradation",
-        "Inspect field drainage and soil moisture conditions prior to operations",
-        f"Perform recommended action during the optimal window for {farmer.get('district', 'your farm')}"
-    ]
+    res = ai_provider.generate_explanation(
+        farmer_name=farmer_name,
+        district=district,
+        crop=crop,
+        land_acres=land_acres,
+        recommendation_action=rec.get("headline", rec.get("action", "Advisory Action")),
+        reasoning=rec.get("reasoning", "Farm context evaluation"),
+        user_question=request.question,
+        context=request.context or rec
+    )
 
     return ExplainResponse(
-        explanation_text=explanation_text,
-        provider_used="KisanSathi Farm Intelligence Engine (Deterministic Rules)",
-        action_steps=action_steps,
-        confidence=confidence,
-        reasoning=reasoning
+        explanation_text=res["explanation_text"],
+        provider_used=res["provider_used"],
+        action_steps=res["action_steps"],
+        confidence=res.get("confidence", rec.get("confidence", 95)),
+        reasoning=res.get("reasoning", rec.get("reasoning"))
     )
