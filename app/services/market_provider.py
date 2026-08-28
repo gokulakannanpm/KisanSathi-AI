@@ -87,7 +87,7 @@ class MarketProvider:
         market: Optional[str] = None,
         commodity: Optional[str] = None
     ) -> Optional[List[Dict[str, Any]]]:
-        api_key = os.getenv("MANDI_API_KEY") or os.getenv("OGD_API_KEY") or os.getenv("AGMARKNET_API_KEY")
+        api_key = (os.getenv("MANDI_API_KEY") or os.getenv("OGD_API_KEY") or os.getenv("AGMARKNET_API_KEY") or "").strip()
         if not api_key:
             logger.info("AGMARKNET API key not configured; using fallback dataset.")
             return None
