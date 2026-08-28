@@ -13,7 +13,7 @@ import { useFarmer } from '../../context/FarmerContext';
 import { apiService } from '../../services/api';
 
 export const AIExplainerModal = () => {
-  const { isAiModalOpen, closeAiExplainer, aiModalContext, farmerId, farmer } = useFarmer();
+  const { isAiModalOpen, closeAiExplainer, aiModalContext, farmerId, farmer, language } = useFarmer();
   const [messages, setMessages] = useState([]);
   const [inputQuestion, setInputQuestion] = useState('');
   const [loading, setLoading] = useState(false);
@@ -27,10 +27,11 @@ export const AIExplainerModal = () => {
 
       apiService.askAiExplain({
         farmer_id: farmerId || farmer?.id || 'demo_farmer_01',
-        context: aiModalContext
+        context: aiModalContext,
+        language: language || 'en'
       }).then(res => {
         if (!isMounted) return;
-        setProviderUsed(res.provider_used || 'KisanSathi Farm Intelligence Engine');
+        setProviderUsed(res.provider_used || 'Rule Engine (Fallback)');
         setMessages([
           {
             sender: 'ai',
@@ -56,7 +57,7 @@ export const AIExplainerModal = () => {
         isMounted = false;
       };
     }
-  }, [isAiModalOpen, farmerId, aiModalContext]);
+  }, [isAiModalOpen, farmerId, aiModalContext, language]);
 
   if (!isAiModalOpen) return null;
 
@@ -73,7 +74,8 @@ export const AIExplainerModal = () => {
       const response = await apiService.askAiExplain({
         farmer_id: farmerId || farmer?.id || 'demo_farmer_01',
         question: userText,
-        context: aiModalContext
+        context: aiModalContext,
+        language: language || 'en'
       });
 
       setProviderUsed(response.provider_used || providerUsed);
@@ -121,13 +123,13 @@ export const AIExplainerModal = () => {
                   <span style={{
                     fontSize: '0.65rem',
                     fontWeight: 700,
-                    background: providerUsed.includes("Offline") ? "#fef3c7" : "#dcfce7",
-                    color: providerUsed.includes("Offline") ? "#b45309" : "#15803d",
+                    background: providerUsed.includes("Live AI") ? "#dcfce7" : "#fef3c7",
+                    color: providerUsed.includes("Live AI") ? "#15803d" : "#b45309",
                     padding: '0.15rem 0.45rem',
                     borderRadius: '999px',
-                    border: `1px solid ${providerUsed.includes("Offline") ? "#fcd34d" : "#86efac"}`
+                    border: `1px solid ${providerUsed.includes("Live AI") ? "#86efac" : "#fcd34d"}`
                   }}>
-                    {providerUsed.includes("Offline") ? "Fallback Mode" : "Live Rule AI Engine"}
+                    {providerUsed.includes("Live AI") ? providerUsed : "Rule Engine Fallback"}
                   </span>
                 )}
               </div>
