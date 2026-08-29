@@ -50,11 +50,11 @@ export const FarmDiary = ({ onAddEntryClick }) => {
       {/* Filter Tabs */}
       <div style={{ display: 'flex', gap: '0.4rem', overflowX: 'auto', paddingBottom: '4px' }}>
         {[
-          { id: 'all', label: 'All Activities' },
-          { id: 'planned', label: 'Planned Tasks' },
-          { id: 'completed', label: 'Completed Actions' },
-          { id: 'cotton', label: 'Cotton' },
-          { id: 'soybean', label: 'Soybean' }
+          { id: 'all', label: t.allActivities || 'All Activities' },
+          { id: 'planned', label: t.plannedTasks || 'Planned Tasks' },
+          { id: 'completed', label: t.completedActions || 'Completed Actions' },
+          { id: 'cotton', label: t.crops?.cotton || 'Cotton' },
+          { id: 'soybean', label: t.crops?.soybean || 'Soybean' }
         ].map((tab) => (
           <button
             key={tab.id}
@@ -79,6 +79,9 @@ export const FarmDiary = ({ onAddEntryClick }) => {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', position: 'relative' }}>
         {filteredEntries.map((entry, idx) => {
           const isPlanned = entry.status === 'planned';
+          const activityLabel = t.activityTypes?.[entry.activity_type] || entry.activity_type;
+          const cropLabel = t.crops?.[entry.crop?.toLowerCase()] || entry.crop;
+
           return (
             <div
               key={entry.id || idx}
@@ -92,7 +95,7 @@ export const FarmDiary = ({ onAddEntryClick }) => {
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>
-                      {entry.activity_type}
+                      {activityLabel}
                     </h3>
                     <span style={{
                       background: 'rgba(124, 58, 237, 0.1)',
@@ -103,7 +106,7 @@ export const FarmDiary = ({ onAddEntryClick }) => {
                       borderRadius: '999px',
                       textTransform: 'capitalize'
                     }}>
-                      {entry.crop}
+                      {cropLabel}
                     </span>
                   </div>
                 </div>
@@ -113,12 +116,12 @@ export const FarmDiary = ({ onAddEntryClick }) => {
                     {isPlanned ? (
                       <>
                         <Clock size={12} />
-                        <span>Planned Action</span>
+                        <span>{t.plannedAction}</span>
                       </>
                     ) : (
                       <>
                         <CheckCircle2 size={12} />
-                        <span>Completed</span>
+                        <span>{t.statusCompleted}</span>
                       </>
                     )}
                   </span>

@@ -36,6 +36,9 @@ export const DiarySnapshot = ({ onAddEntryClick }) => {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '0.75rem' }}>
         {recentEntries.map((entry, idx) => {
           const isPlanned = entry.status === 'planned';
+          const activityLabel = t.activityTypes?.[entry.activity_type] || entry.activity_type;
+          const cropLabel = t.crops?.[entry.crop?.toLowerCase()] || entry.crop;
+
           return (
             <div
               key={entry.id || idx}
@@ -53,10 +56,10 @@ export const DiarySnapshot = ({ onAddEntryClick }) => {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <span style={{ fontWeight: 700, fontSize: '0.85rem', color: '#0f172a' }}>
-                    {entry.activity_type}
+                    {activityLabel}
                   </span>
                   <span style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'capitalize' }}>
-                    ({entry.crop})
+                    ({cropLabel})
                   </span>
                 </div>
                 <div style={{ fontSize: '0.75rem', color: '#475569', maxWidth: '380px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -73,7 +76,7 @@ export const DiarySnapshot = ({ onAddEntryClick }) => {
                   padding: '0.15rem 0.45rem',
                   borderRadius: '999px'
                 }}>
-                  {isPlanned ? 'Planned' : 'Done'}
+                  {isPlanned ? (t.statusPlanned || 'Planned') : (t.statusCompleted || 'Done')}
                 </span>
                 <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.15rem' }}>
                   {entry.date}

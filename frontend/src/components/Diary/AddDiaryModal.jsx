@@ -59,13 +59,13 @@ export const AddDiaryModal = ({ isOpen, onClose }) => {
                 onChange={(e) => setActivityType(e.target.value)}
                 style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid var(--border-medium)', background: '#fff' }}
               >
-                <option value="Pesticide Spraying">Pesticide Spraying</option>
-                <option value="Fertilizer Application">Fertilizer Application</option>
-                <option value="Drip Irrigation">Drip Irrigation</option>
-                <option value="Sowing">Sowing</option>
-                <option value="Weeding">Weeding</option>
-                <option value="Harvesting">Harvesting</option>
-                <option value="Market Sale">Market Sale</option>
+                <option value="Pesticide Spraying">{t.activityTypes?.["Pesticide Spraying"] || "Pesticide Spraying"}</option>
+                <option value="Fertilizer Application">{t.activityTypes?.["Fertilizer Application"] || "Fertilizer Application"}</option>
+                <option value="Drip Irrigation">{t.activityTypes?.["Drip Irrigation"] || "Drip Irrigation"}</option>
+                <option value="Sowing">{t.activityTypes?.["Sowing"] || "Sowing"}</option>
+                <option value="Weeding">{t.activityTypes?.["Weeding"] || "Weeding"}</option>
+                <option value="Harvesting">{t.activityTypes?.["Harvesting"] || "Harvesting"}</option>
+                <option value="Market Sale">{t.activityTypes?.["Market Sale"] || "Market Sale"}</option>
               </select>
             </div>
 
@@ -78,10 +78,10 @@ export const AddDiaryModal = ({ isOpen, onClose }) => {
                 onChange={(e) => setCrop(e.target.value)}
                 style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid var(--border-medium)', background: '#fff' }}
               >
-                <option value="cotton">Cotton (कपास)</option>
-                <option value="soybean">Soybean (सोयाबीन)</option>
-                <option value="wheat">Wheat (गेहूं)</option>
-                <option value="gram">Gram (चना)</option>
+                <option value="cotton">{t.crops?.cotton || "Cotton"}</option>
+                <option value="soybean">{t.crops?.soybean || "Soybean"}</option>
+                <option value="wheat">{t.crops?.wheat || "Wheat"}</option>
+                <option value="gram">{t.crops?.gram || "Gram"}</option>
               </select>
             </div>
           </div>
@@ -109,8 +109,8 @@ export const AddDiaryModal = ({ isOpen, onClose }) => {
                 onChange={(e) => setStatus(e.target.value)}
                 style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid var(--border-medium)', background: '#fff' }}
               >
-                <option value="planned">Planned (Upcoming)</option>
-                <option value="completed">Completed (Done)</option>
+                <option value="planned">{t.statusPlanned}</option>
+                <option value="completed">{t.statusCompleted}</option>
               </select>
             </div>
           </div>

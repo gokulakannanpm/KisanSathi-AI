@@ -53,7 +53,7 @@ export const MandiView = () => {
       }}>
         <AlertCircle size={20} color="#d97706" style={{ flexShrink: 0 }} />
         <div style={{ fontSize: '0.85rem', color: '#475569' }}>
-          <strong>Transparency Notice:</strong> Prices marked <span className="badge badge-live" style={{ fontSize: '0.7rem' }}>LIVE DATA</span> are fetched in real time from AGMARKNET. Items marked <span className="badge badge-fallback" style={{ fontSize: '0.7rem' }}>FALLBACK CACHE</span> indicate active connection retries or rolling modal baseline from recent market sessions.
+          <strong>{t.transparencyNoticeHeader}</strong> {t.transparencyNoticeText}
         </div>
       </div>
 
@@ -120,7 +120,7 @@ export const MandiView = () => {
                 whiteSpace: 'nowrap'
               }}
             >
-              {crop}
+              {t.crops?.[crop.toLowerCase()] || crop}
             </button>
           ))}
         </div>
@@ -139,7 +139,7 @@ export const MandiView = () => {
                       {item.commodity}
                     </h3>
                     <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                      {item.variety || 'Standard Quality'} • {item.market}, {item.district}
+                      {item.variety || t.standardQuality} • {item.market}, {item.district}
                     </div>
                   </div>
                   <LiveFallbackBadge 
@@ -164,7 +164,7 @@ export const MandiView = () => {
                       {t.modalMandiRate}
                     </div>
                     <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#15803d' }}>
-                      ₹{item.modal_price.toLocaleString()} <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b' }}>/ Qtl</span>
+                      ₹{item.modal_price.toLocaleString()} <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b' }}>/ {t.perQuintal}</span>
                     </div>
                   </div>
 
@@ -190,7 +190,7 @@ export const MandiView = () => {
                     fontWeight: 700,
                     marginBottom: '0.75rem'
                   }}>
-                    <span>Govt MSP: ₹{item.msp}</span>
+                    <span>{t.govtMsp}: ₹{item.msp}</span>
                     <span>{isAboveMsp ? `+₹${item.modal_price - item.msp} ${t.aboveMsp}` : `-₹${item.msp - item.modal_price} ${t.belowMsp}`}</span>
                   </div>
                 )}
@@ -221,7 +221,7 @@ export const MandiView = () => {
                 fontSize: '0.75rem',
                 color: '#94a3b8'
               }}>
-                <span>Date: {item.date}</span>
+                <span>{t.date}: {item.date}</span>
                 <button
                   onClick={() => openAiExplainer({
                     headline: `Mandi Intelligence for ${item.commodity}`,

@@ -87,6 +87,12 @@ export const translations = {
     marketAdviceButton: "Market Advice",
     aboveMsp: "above MSP",
     belowMsp: "below MSP",
+    govtMsp: "Govt MSP",
+    range: "Range",
+    perQuintal: "Qtl",
+    standardQuality: "Standard Quality",
+    transparencyNoticeHeader: "Transparency Notice:",
+    transparencyNoticeText: "Prices marked LIVE DATA are fetched in real time from AGMARKNET. Items marked FALLBACK CACHE indicate active connection retries or rolling modal baseline from recent market sessions.",
 
     // Schemes Card
     schemesHeader: "Government Schemes & Subsidies",
@@ -101,7 +107,7 @@ export const translations = {
     listenInLanguage: "Listen in Audio",
     stopAudio: "Stop Audio",
 
-    // Diary
+    // Diary Section & Activity Mappings
     diaryTitle: "Farm Memory & Diary",
     diarySubtitle: "Chronological activity log powering your personalized farm recommendations",
     addDiaryEntry: "Log New Farm Activity",
@@ -115,6 +121,25 @@ export const translations = {
     statusCompleted: "Completed",
     saveEntry: "Save to Farm Memory",
     cancel: "Cancel",
+    allActivities: "All Activities",
+    plannedTasks: "Planned Tasks",
+    completedActions: "Completed Actions",
+    plannedAction: "Planned Action",
+    activityTypes: {
+      "Pesticide Spraying": "Pesticide Spraying",
+      "Fertilizer Application": "Fertilizer Application",
+      "Drip Irrigation": "Drip Irrigation",
+      "Sowing": "Sowing",
+      "Weeding": "Weeding",
+      "Harvesting": "Harvesting",
+      "Market Sale": "Market Sale"
+    },
+    crops: {
+      "cotton": "Cotton",
+      "soybean": "Soybean",
+      "wheat": "Wheat",
+      "gram": "Gram"
+    },
 
     // Profile
     profileTitle: "Farmer & Land Profile",
@@ -224,6 +249,12 @@ export const translations = {
     marketAdviceButton: "बाजार सलाह",
     aboveMsp: "एमएसपी से ऊपर",
     belowMsp: "एमएसपी से नीचे",
+    govtMsp: "सरकारी एमएसपी",
+    range: "सीमा",
+    perQuintal: "क्विंटल",
+    standardQuality: "मानक गुणवत्ता",
+    transparencyNoticeHeader: "पारदर्शिता सूचना:",
+    transparencyNoticeText: "लाइव डेटा के रूप में चिह्नित भाव AGMARKNET से वास्तविक समय में प्राप्त किए जाते हैं। बैकअप डेटा हाल के बाजार सत्रों के मूल्य आधार को दर्शाता है।",
 
     // Schemes Card
     schemesHeader: "सरकारी योजनाएं एवं सब्सिडी",
@@ -238,7 +269,7 @@ export const translations = {
     listenInLanguage: "हिन्दी में सुनें",
     stopAudio: "ऑडियो बंद करें",
 
-    // Diary
+    // Diary Section & Activity Mappings
     diaryTitle: "खेत डायरी व स्मृति",
     diarySubtitle: "आपके खेत की गतिविधियों का ऐतिहासिक लेखा-जोखा",
     addDiaryEntry: "नया कार्य दर्ज करें",
@@ -252,6 +283,25 @@ export const translations = {
     statusCompleted: "पूर्ण (Done)",
     saveEntry: "डायरी में सुरक्षित करें",
     cancel: "रद्द करें",
+    allActivities: "सभी गतिविधियां",
+    plannedTasks: "योजनाबद्ध कार्य",
+    completedActions: "संपन्न कार्य",
+    plannedAction: "योजनाबद्ध कार्य",
+    activityTypes: {
+      "Pesticide Spraying": "कीटनाशक छिड़काव",
+      "Fertilizer Application": "उर्वरक प्रयोग",
+      "Drip Irrigation": "ड्रिप सिंचाई",
+      "Sowing": "बुवाई",
+      "Weeding": "निराई-गुड़ाई",
+      "Harvesting": "कटाई",
+      "Market Sale": "मंडी बिक्री"
+    },
+    crops: {
+      "cotton": "कपास",
+      "soybean": "सोयाबीन",
+      "wheat": "गेहूं",
+      "gram": "चना"
+    },
 
     // Profile
     profileTitle: "किसान एवं भूमि विवरण",
@@ -361,6 +411,12 @@ export const translations = {
     marketAdviceButton: "சந்தை ஆலோசனை",
     aboveMsp: "எம்எஸ்பிக்கு மேல்",
     belowMsp: "எம்எஸ்பிக்கு கீழ்",
+    govtMsp: "அரசு எம்எஸ்பி",
+    range: "வரம்பு",
+    perQuintal: "க்விண்டால்",
+    standardQuality: "தரமான தரம்",
+    transparencyNoticeHeader: "வெளிப்படைத்தன்மை அறிவிப்பு:",
+    transparencyNoticeText: "நேரடி தரவு என குறிக்கப்பட்ட விலைகள் AGMARKNET இலிருந்து பெறப்படுகின்றன. காப்பு தரவு முந்தைய சந்தை விலைகளைக் காட்டுகிறது.",
 
     // Schemes Card
     schemesHeader: "அரசு திட்டங்கள் மற்றும் மானியங்கள்",
@@ -375,7 +431,7 @@ export const translations = {
     listenInLanguage: "தமிழில் கேளுங்கள்",
     stopAudio: "ஆடியோவை நிறுத்து",
 
-    // Diary
+    // Diary Section & Activity Mappings
     diaryTitle: "பண்ணை குறிப்பேடு",
     diarySubtitle: "பரிந்துரைகளை உருவாக்கும் பண்ணை பதிவுகள்",
     addDiaryEntry: "புதிய பதிவைச் சேர்",
@@ -389,6 +445,25 @@ export const translations = {
     statusCompleted: "முடிந்தது",
     saveEntry: "சேமிக்கவும்",
     cancel: "ரத்து செய்",
+    allActivities: "அனைத்து செயல்பாடுகளும்",
+    plannedTasks: "திட்டமிடப்பட்ட பணிகள்",
+    completedActions: "முடிக்கப்பட்ட செயல்பாடுகள்",
+    plannedAction: "திட்டமிடப்பட்ட செயல்",
+    activityTypes: {
+      "Pesticide Spraying": "பூச்சிகொல்லி தெளித்தல்",
+      "Fertilizer Application": "உரம் இடுதல்",
+      "Drip Irrigation": "சொட்டு நீர் பாசனம்",
+      "Sowing": "விதைப்பு",
+      "Weeding": "களை எடுத்தல்",
+      "Harvesting": "அறுவடை",
+      "Market Sale": "சந்தை விற்பனை"
+    },
+    crops: {
+      "cotton": "பருத்தி",
+      "soybean": "சோயாபீன்",
+      "wheat": "கோதுமை",
+      "gram": "கடலை"
+    },
 
     // Profile
     profileTitle: "விவசாயி சுயவிவரம்",
@@ -498,6 +573,12 @@ export const translations = {
     marketAdviceButton: "बाजार सल्ला",
     aboveMsp: "हमीभावापेक्षा जास्त",
     belowMsp: "हमीभावापेक्षा कमी",
+    govtMsp: "शासकीय हमीभाव",
+    range: "मर्यादा",
+    perQuintal: "क्विंटल",
+    standardQuality: "मानक दर्जा",
+    transparencyNoticeHeader: "पारदर्शकता सूचना:",
+    transparencyNoticeText: "थेट दर ॲगमार्कनेटवरून मिळवले जातात. जुने दर मागील बाजार सत्रांमधील सरासरी दर्शवतात.",
 
     // Schemes Card
     schemesHeader: "शासकीय योजना व अनुदान",
@@ -512,7 +593,7 @@ export const translations = {
     listenInLanguage: "मराठीत ऐका",
     stopAudio: "ऑडिओ थांबवा",
 
-    // Diary
+    // Diary Section & Activity Mappings
     diaryTitle: "शेत रोजनिशी व स्मरणशक्ती",
     diarySubtitle: "तुमच्या शेतातील नोंदी व आगामी नियोजित कामे",
     addDiaryEntry: "नवीन नोंद करा",
@@ -526,6 +607,25 @@ export const translations = {
     statusCompleted: "पूर्ण (Done)",
     saveEntry: "रोजनिशीत जतन करा",
     cancel: "रद्द करा",
+    allActivities: "सर्व कामे",
+    plannedTasks: "नियोजित कामे",
+    completedActions: "पूर्ण झालेली कामे",
+    plannedAction: "नियोजित कृती",
+    activityTypes: {
+      "Pesticide Spraying": "फवारणी",
+      "Fertilizer Application": "खत व्यवस्थापन",
+      "Drip Irrigation": "ठिबक सिंचन",
+      "Sowing": "पेरणी",
+      "Weeding": "खुरपणी",
+      "Harvesting": "कापणी",
+      "Market Sale": "बाजार विक्री"
+    },
+    crops: {
+      "cotton": "कापूस",
+      "soybean": "सोयाबीन",
+      "wheat": "गहू",
+      "gram": "हरभरा"
+    },
 
     // Profile
     profileTitle: "शेतकरी व जमीन तपशील",
