@@ -14,7 +14,7 @@ export const SUPPORTED_LANGUAGES = [
   { code: 'mr', name: 'Marathi', nativeName: 'मराठी' }
 ];
 
-export const API_BASE = '/api';
+export const API_BASE = 'https://kisansathi-ai-asap.onrender.com/api';
 
 export const COMMODITY_OPTIONS = [
   'Cotton',
