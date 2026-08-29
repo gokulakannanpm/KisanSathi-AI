@@ -154,26 +154,66 @@ export const apiService = {
 
   // 9. AI Explainer Assistant
   askAiExplain: async (contextPayload) => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
     try {
       const res = await fetch(`${API_BASE}/ai/explain`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(contextPayload)
+        body: JSON.stringify(contextPayload),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       isBackendAvailable = true;
       return data;
     } catch (e) {
-      // Intelligent contextual mock response
+      clearTimeout(timeoutId);
+      console.warn(`[KisanSathi AI] AI endpoint unavailable (${e.message}). Using agricultural demo fallback.`);
+      
+      const q = (contextPayload?.question || '').toLowerCase();
+      let text = "Advisory based on farm memory & weather conditions: Rain forecast requires postponing chemical applications to avoid washout.";
+      let steps = [
+        "Verify field drainage before operation",
+        "Follow weather-safe application window",
+        "Ensure protective safety equipment"
+      ];
+
+      if (q.includes("wait before spraying") || q.includes("rain is expected") || q.includes("why should i wait")) {
+        text = "Chemical rainfastness requires at least 6-8 hours of dry weather. Spraying before rain leads to chemical washout, zero pest control efficacy, and financial loss.";
+        steps = [
+          "Postpone spraying until weather radar confirms a clear 8-hour window",
+          "Keep chemicals sealed in dry storage to avoid degradation",
+          "Inspect field for pest density prior to rescheduled operation"
+        ];
+      } else if (q.includes("heavy rain") || q.includes("forecast")) {
+        text = "When heavy rain is forecast: 1) Clear field drainage channels to prevent waterlogging. 2) Postpone fertilizer/pesticide sprays. 3) Secure harvested produce in dry storage.";
+        steps = [
+          "Clear field perimeter drainage channels immediately",
+          "Do not apply granular fertilizers or foliar sprays today",
+          "Verify grain and harvest storage moisture protection"
+        ];
+      } else if (q.includes("crop health") || q.includes("improve")) {
+        text = "To improve crop health: 1) Apply balanced NPK fertilizer based on crop growth stage. 2) Maintain soil moisture balance. 3) Monitor fields weekly for early pest signs.";
+        steps = [
+          "Conduct regular soil moisture & nutrient monitoring",
+          "Maintain proper weed management and plant spacing",
+          "Apply crop protection inputs during optimal weather windows"
+        ];
+      } else if (q.includes("check before spraying") || q.includes("pesticides") || q.includes("check")) {
+        text = "Before spraying pesticides: 1) Verify 6-8 hour zero-rain forecast and low wind speed. 2) Use correct dosage per acre. 3) Wear protective safety gear.";
+        steps = [
+          "Verify 8-hour rain and wind velocity forecast",
+          "Check sprayer nozzle pattern and pressure calibration",
+          "Wear recommended personal protective safety equipment"
+        ];
+      }
+
       return {
-        explanation_text: `Based on your farm memory and live radar data: The scheduled action has been evaluated. Heavy rain forecast for your region will cause input washout. Postponing ensures full protection and saves re-application expenses.`,
-        provider_used: "KisanSathi Farm Intelligence Engine (Offline Fallback)",
-        action_steps: [
-          "Do not mix chemicals today to avoid degradation",
-          "Ensure field drainage is unclogged before tomorrow",
-          "Perform operation during the recommended safe window"
-        ],
+        explanation_text: text,
+        provider_used: "Rule Engine Fallback (Offline)",
+        action_steps: steps,
         confidence: 95
       };
     }

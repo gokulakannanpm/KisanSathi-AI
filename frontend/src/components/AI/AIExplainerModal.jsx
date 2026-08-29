@@ -1,13 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   X, 
   Sparkles, 
   Send, 
   Bot, 
-  User, 
-  Cpu, 
-  ShieldCheck, 
-  HelpCircle 
+  User 
 } from 'lucide-react';
 import { useFarmer } from '../../context/FarmerContext';
 import { apiService } from '../../services/api';
@@ -19,11 +16,20 @@ export const AIExplainerModal = () => {
   const [loading, setLoading] = useState(false);
   const [providerUsed, setProviderUsed] = useState('');
 
+  const hasFetchedRef = useRef(false);
+
   // Fetch initial AI explanation from backend when modal opens
   useEffect(() => {
     if (isAiModalOpen) {
+      if (hasFetchedRef.current) return;
+      hasFetchedRef.current = true;
+
       let isMounted = true;
       setLoading(true);
+
+      const safetyTimer = setTimeout(() => {
+        if (isMounted) setLoading(false);
+      }, 15000);
 
       apiService.askAiExplain({
         farmer_id: farmerId || farmer?.id || 'demo_farmer_01',
@@ -31,7 +37,7 @@ export const AIExplainerModal = () => {
         language: language || 'en'
       }).then(res => {
         if (!isMounted) return;
-        setProviderUsed(res.provider_used || 'Rule Engine (Fallback)');
+        setProviderUsed(res.provider_used || 'Rule Engine Fallback');
         setMessages([
           {
             sender: 'ai',
@@ -46,40 +52,51 @@ export const AIExplainerModal = () => {
         setMessages([
           {
             sender: 'ai',
-            text: aiModalContext?.ai_explanation || `Analysis based on live farm memory and regional atmospheric radar conditions.`
+            text: aiModalContext?.ai_explanation || `Analysis based on live farm memory and regional atmospheric conditions.`
           }
         ]);
       }).finally(() => {
+        clearTimeout(safetyTimer);
         if (isMounted) setLoading(false);
       });
 
       return () => {
         isMounted = false;
+        clearTimeout(safetyTimer);
       };
+    } else {
+      hasFetchedRef.current = false;
+      setMessages([]);
+      setLoading(false);
     }
-  }, [isAiModalOpen, farmerId, aiModalContext, language]);
+  }, [isAiModalOpen]);
 
   if (!isAiModalOpen) return null;
 
   const handleAsk = async (e) => {
     e.preventDefault();
-    if (!inputQuestion.trim() || loading) return;
+    const queryText = inputQuestion.trim();
+    if (!queryText || loading) return;
 
-    const userText = inputQuestion;
     setInputQuestion('');
-    setMessages(prev => [...prev, { sender: 'user', text: userText }]);
+    setMessages(prev => [...prev, { sender: 'user', text: queryText }]);
     setLoading(true);
+
+    let isMounted = true;
+    const safetyTimer = setTimeout(() => {
+      if (isMounted) setLoading(false);
+    }, 15000);
 
     try {
       const response = await apiService.askAiExplain({
         farmer_id: farmerId || farmer?.id || 'demo_farmer_01',
-        question: userText,
+        question: queryText,
         context: aiModalContext,
         language: language || 'en'
       });
 
+      if (!isMounted) return;
       setProviderUsed(response.provider_used || providerUsed);
-
       setMessages(prev => [
         ...prev, 
         { 
@@ -90,9 +107,18 @@ export const AIExplainerModal = () => {
         }
       ]);
     } catch (e) {
+      if (!isMounted) return;
       console.error("AI question fetch error:", e);
+      setMessages(prev => [
+        ...prev,
+        {
+          sender: 'ai',
+          text: "AI Assistant Note: Live AI service is currently unavailable. Operating in localized agricultural fallback mode."
+        }
+      ]);
     } finally {
-      setLoading(false);
+      clearTimeout(safetyTimer);
+      if (isMounted) setLoading(false);
     }
   };
 
