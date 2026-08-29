@@ -24,10 +24,10 @@ export const WeatherView = () => {
         <div>
           <h2 className="section-title">
             <CloudRain size={24} color="#0284c7" />
-            <span>Agricultural Weather & Radar Intelligence</span>
+            <span>{t.weatherTitle}</span>
           </h2>
           <p className="section-subtitle">
-            Doppler station real-time weather synced with farmer's Nagpur land parcel
+            {t.weatherSubtitle}
           </p>
         </div>
         <LiveFallbackBadge source={weather.source} sourceName={weather.source_name} />
@@ -67,7 +67,7 @@ export const WeatherView = () => {
           }}>
             <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fef08a', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
               <ShieldAlert size={16} />
-              <span>Spraying Feasibility Index</span>
+              <span>{t.sprayingFeasibility}</span>
             </div>
             <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fee2e2' }}>
               {weather.advisory?.spraying_index || 'HIGH RISK (Delay Spray)'}
@@ -87,28 +87,28 @@ export const WeatherView = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Droplets size={22} color="#bae6fd" />
             <div>
-              <div style={{ fontSize: '0.75rem', opacity: 0.8 }}>Rain Chance</div>
+              <div style={{ fontSize: '0.75rem', opacity: 0.8 }}>{t.rainProbLabel}</div>
               <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>{weather.rain_probability}%</div>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Wind size={22} color="#bae6fd" />
             <div>
-              <div style={{ fontSize: '0.75rem', opacity: 0.8 }}>Wind Speed</div>
+              <div style={{ fontSize: '0.75rem', opacity: 0.8 }}>{t.windSpeed}</div>
               <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>{weather.wind_speed} km/h</div>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Thermometer size={22} color="#bae6fd" />
             <div>
-              <div style={{ fontSize: '0.75rem', opacity: 0.8 }}>Humidity</div>
+              <div style={{ fontSize: '0.75rem', opacity: 0.8 }}>{t.humidity}</div>
               <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>{weather.humidity}%</div>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <ShieldAlert size={22} color="#fef08a" />
             <div>
-              <div style={{ fontSize: '0.75rem', opacity: 0.8 }}>Irrigation Need</div>
+              <div style={{ fontSize: '0.75rem', opacity: 0.8 }}>{t.irrigationNeed}</div>
               <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>{weather.advisory?.irrigation_need || 'Zero'}</div>
             </div>
           </div>
@@ -119,7 +119,7 @@ export const WeatherView = () => {
       <div>
         <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
           <Calendar size={18} color="var(--primary)" />
-          <span>3-Day Farm Forecast & Operations Window</span>
+          <span>{t.threeDayForecastTitle}</span>
         </h3>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
@@ -137,7 +137,7 @@ export const WeatherView = () => {
                   {day.day}
                 </span>
                 <span className={`badge ${day.spraying_safe ? 'badge-eligible' : 'badge-danger'}`}>
-                  {day.spraying_safe ? 'Safe for Spraying' : 'Rain Risk / Unsafe'}
+                  {day.spraying_safe ? t.sprayingSafe : t.sprayingUnsafe}
                 </span>
               </div>
 
@@ -158,7 +158,7 @@ export const WeatherView = () => {
       <div className="ks-card" style={{ background: '#fffbeb', border: '1px solid #fef3c7' }}>
         <h4 style={{ color: '#b45309', fontWeight: 800, fontSize: '0.95rem', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
           <AlertTriangle size={18} />
-          <span>Agronomic Drainage Advisory</span>
+          <span>{t.drainageAdvisoryTitle}</span>
         </h4>
         <p style={{ fontSize: '0.85rem', color: '#78350f', lineHeight: 1.5 }}>
           {weather.advisory?.drainage_advisory || 'Heavy downpours expected. Please ensure that drainage trenches on your 2.5 acre cotton and soybean plots are cleared of weeds to avoid root waterlogging.'}

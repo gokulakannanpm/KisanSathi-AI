@@ -26,8 +26,7 @@ export const Navigation = () => {
       {/* Desktop Top Tabs (Rendered in header or top of content) */}
       <div style={{
         background: '#ffffff',
-        borderBottom: '1px solid var(--border-subtle)',
-        display: 'none'
+        borderBottom: '1px solid var(--border-subtle)'
       }} className="desktop-nav-container">
         <div style={{
           maxWidth: '1120px',

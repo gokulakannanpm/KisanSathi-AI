@@ -12,7 +12,7 @@ export const MandiSnapshot = () => {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
         <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
           <TrendingUp size={20} color="#15803d" />
-          <span>Mandi Prices & Trends</span>
+          <span>{t.navMandi}</span>
         </h3>
         <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#15803d', background: '#dcfce7', padding: '0.2rem 0.5rem', borderRadius: '999px' }}>
           APMC Live
@@ -55,7 +55,7 @@ export const MandiSnapshot = () => {
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 700 }}>
-        <span>Explore All Commodities & Selling Strategy</span>
+        <span>{t.exploreMandiStrategy}</span>
         <ArrowRight size={14} />
       </div>
     </div>

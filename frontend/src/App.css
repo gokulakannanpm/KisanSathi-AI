@@ -116,6 +116,16 @@
 }
 
 /* Desktop Header Navigation */
+.desktop-nav-container {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .desktop-nav-container {
+    display: block;
+  }
+}
+
 .desktop-nav-tabs {
   display: none;
 }

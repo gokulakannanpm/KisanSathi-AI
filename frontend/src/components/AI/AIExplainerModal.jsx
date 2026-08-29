@@ -143,7 +143,7 @@ export const AIExplainerModal = () => {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a' }}>
-                  KisanSathi AI Farm Assistant
+                  {t.aiModalTitle}
                 </h2>
                 {providerUsed && (
                   <span style={{
@@ -160,7 +160,7 @@ export const AIExplainerModal = () => {
                 )}
               </div>
               <p style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                Contextual agricultural reasoning & plain-language explanations for {farmer?.name || 'Farmer'}
+                {t.aiModalSubtitle} ({farmer?.name || 'Farmer'})
               </p>
             </div>
           </div>
@@ -219,7 +219,7 @@ export const AIExplainerModal = () => {
 
                 {msg.action_steps && msg.action_steps.length > 0 && (
                   <div style={{ marginTop: '0.75rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(0,0,0,0.1)' }}>
-                    <strong>Recommended Action Steps:</strong>
+                    <strong>{t.recommendedActionSteps}</strong>
                     <ul style={{ paddingLeft: '1.2rem', marginTop: '0.25rem' }}>
                       {msg.action_steps.map((st, i) => (
                         <li key={i}>{st}</li>
@@ -234,7 +234,7 @@ export const AIExplainerModal = () => {
           {loading && (
             <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', color: '#64748b', fontSize: '0.85rem' }}>
               <Sparkles size={16} className="animate-spin" color="#d97706" />
-              <span>KisanSathi AI is analyzing farm memory...</span>
+              <span>{t.aiModalLoading}</span>
             </div>
           )}
         </div>
@@ -243,7 +243,7 @@ export const AIExplainerModal = () => {
         <form onSubmit={handleAsk} style={{ display: 'flex', gap: '0.5rem' }}>
           <input
             type="text"
-            placeholder="Ask anything (e.g. 'Why should I wait until Saturday to spray?')"
+            placeholder={t.aiModalPlaceholder}
             value={inputQuestion}
             onChange={(e) => setInputQuestion(e.target.value)}
             style={{

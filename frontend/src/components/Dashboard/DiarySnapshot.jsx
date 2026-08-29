@@ -11,7 +11,7 @@ export const DiarySnapshot = ({ onAddEntryClick }) => {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
         <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
           <BookOpen size={20} color="#7c3aed" />
-          <span>Farm Memory & Scheduled Tasks</span>
+          <span>{t.diaryTitle}</span>
         </h3>
         <button
           onClick={onAddEntryClick}
@@ -29,7 +29,7 @@ export const DiarySnapshot = ({ onAddEntryClick }) => {
           }}
         >
           <Plus size={14} />
-          <span>Add Entry</span>
+          <span>{t.addDiaryEntry}</span>
         </button>
       </div>
 

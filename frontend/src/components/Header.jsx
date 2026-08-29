@@ -176,7 +176,7 @@ export const Header = () => {
             title="Ask KisanSathi AI Assistant"
           >
             <Sparkles size={14} />
-            <span>Ask AI</span>
+            <span>{t.askAiButton}</span>
           </button>
 
           {/* Language Selector Dropdown */}

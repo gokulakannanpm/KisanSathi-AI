@@ -18,31 +18,31 @@ export const ConnectiveLoopVisualizer = () => {
 
   const steps = [
     {
-      title: "1. Farmer Context",
+      title: t.stepFarmerContext,
       sub: "2.5 Acres, Cotton/Soybean, Nagpur",
       icon: User,
       color: "#16a34a"
     },
     {
-      title: "2. Farm Diary",
+      title: t.stepFarmDiary,
       sub: "Spraying planned tomorrow 2 PM",
       icon: BookOpen,
       color: "#0284c7"
     },
     {
-      title: "3. Live Weather",
+      title: t.stepLiveWeather,
       sub: "88% Thunderstorm (45-60mm rain)",
       icon: CloudRain,
       color: "#d97706"
     },
     {
-      title: "4. AI Engine",
+      title: t.stepAiEngine,
       sub: "Cross-checks chemical rainfastness",
       icon: Cpu,
       color: "#7c3aed"
     },
     {
-      title: "5. Hero Decision",
+      title: t.stepHeroDecision,
       sub: "Postpone to Saturday -> Saves ₹1,800",
       icon: CheckCircle2,
       color: "#dc2626"
@@ -72,7 +72,7 @@ export const ConnectiveLoopVisualizer = () => {
           </div>
           <div>
             <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#f0fdf4' }}>
-              {t.connectiveLoop} (KisanSathi USP)
+              {t.connectiveLoop}
             </h3>
             <p style={{ fontSize: '0.75rem', color: '#bbf7d0' }}>
               {t.connectiveLoopSubtitle}
@@ -95,7 +95,7 @@ export const ConnectiveLoopVisualizer = () => {
           }}
         >
           <Info size={13} />
-          <span>{expanded ? 'Collapse Loop' : 'How Loop Works'}</span>
+          <span>{expanded ? t.collapseLoop : t.howLoopWorks}</span>
         </button>
       </div>
 

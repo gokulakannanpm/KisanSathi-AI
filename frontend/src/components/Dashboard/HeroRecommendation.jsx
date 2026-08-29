@@ -164,7 +164,7 @@ export const HeroRecommendation = () => {
           </div>
           <div>
             <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>
-              Optimal Rescheduled Window
+              {t.optimalRescheduledWindow}
             </div>
             <div style={{ fontSize: '0.85rem', color: '#166534', fontWeight: 700 }}>
               {recommendation.recommended_new_date || 'Saturday, 29 Aug (07:30 AM)'}
@@ -210,7 +210,7 @@ export const HeroRecommendation = () => {
           ) : (
             <>
               <ShieldCheck size={18} />
-              <span>{submitting ? 'Saving...' : 'Acknowledge & Postpone'}</span>
+              <span>{submitting ? t.saving : t.acknowledgeAndPostpone}</span>
             </>
           )}
         </button>

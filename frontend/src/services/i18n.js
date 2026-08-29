@@ -14,7 +14,7 @@ export const translations = {
     navDiary: "Farm Diary",
     navProfile: "My Farm",
 
-    // Dashboard Hero
+    // Dashboard Hero & Buttons
     recommendationHero: "Priority AI Recommendation",
     decision: "Action Decision",
     reasoning: "Key Reasoning",
@@ -24,6 +24,27 @@ export const translations = {
     exploreAiDeepDive: "Explain Why (Ask AI)",
     markAsCompleted: "Mark Action Completed",
     actionPostponed: "Postponed Action Scheduled",
+    optimalRescheduledWindow: "Optimal Rescheduled Window",
+    acknowledgeAndPostpone: "Acknowledge & Postpone",
+    saving: "Saving...",
+    askAiButton: "Ask AI",
+
+    // AI Modal UI
+    aiModalTitle: "KisanSathi AI Farm Assistant",
+    aiModalSubtitle: "Contextual agricultural reasoning & plain-language explanations",
+    aiModalPlaceholder: "Ask anything (e.g. 'Why should I wait until Saturday to spray?')",
+    aiModalLoading: "KisanSathi AI is analyzing farm memory...",
+    recommendedActionSteps: "Recommended Action Steps:",
+
+    // Connective Loop
+    loopTitle: "The Connective Loop",
+    howLoopWorks: "How Loop Works",
+    collapseLoop: "Collapse Loop",
+    stepFarmerContext: "1. Farmer Context",
+    stepFarmDiary: "2. Farm Diary",
+    stepLiveWeather: "3. Live Weather",
+    stepAiEngine: "4. AI Engine",
+    stepHeroDecision: "5. Hero Decision",
 
     // Live vs Fallback
     liveData: "LIVE DATA",
@@ -33,22 +54,39 @@ export const translations = {
     liveWeatherBadge: "Live IMD / OpenWeather",
     fallbackWeatherBadge: "Cached Forecast",
 
-    // Weather Card
+    // Weather Section & Card
+    weatherTitle: "Agricultural Weather & Radar Intelligence",
+    weatherSubtitle: "Doppler station real-time weather synced with farmer's Nagpur land parcel",
     temperature: "Temperature",
     rainProbability: "Rain Probability",
+    rainProbLabel: "Rain Prob",
     humidity: "Humidity",
     windSpeed: "Wind Speed",
     sprayingFeasibility: "Spraying Feasibility",
     irrigationNeed: "Irrigation Need",
+    viewWeatherForecast: "View 3-Day Forecast & Spraying Advisory",
+    threeDayForecastTitle: "3-Day Farm Forecast & Operations Window",
+    sprayingSafe: "Safe for Spraying",
+    sprayingUnsafe: "Rain Risk / Unsafe",
+    drainageAdvisoryTitle: "Agronomic Drainage Advisory",
 
-    // Mandi Card
+    // Mandi Section & Card
+    mandiTitle: "Live APMC Mandi Rates & Market Trends",
+    mandiSubtitle: "Real-time wholesale modal prices with transparent LIVE vs FALLBACK data indicators",
     marketPrice: "Market Price",
     commodity: "Commodity",
     market: "Mandi Market",
     modalPrice: "Modal Price",
+    modalMandiRate: "Modal Mandi Rate",
     minMaxPrice: "Min / Max Range",
     priceTrend: "Price Trend",
     sellingAdvice: "AI Selling Advice",
+    searchPlaceholder: "Search commodity or market...",
+    allCrops: "All Crops",
+    exploreMandiStrategy: "Explore All Commodities & Selling Strategy",
+    marketAdviceButton: "Market Advice",
+    aboveMsp: "above MSP",
+    belowMsp: "below MSP",
 
     // Schemes Card
     schemesHeader: "Government Schemes & Subsidies",
@@ -97,6 +135,7 @@ export const translations = {
     statusMockBackend: "Offline / Using Persistent Mock Memory",
     switchMode: "Toggle Data Source"
   },
+
   hi: {
     appTitle: "किसानसाथी AI",
     tagline: "व्यक्तिगत कृषि बुद्धिमत्ता",
@@ -112,7 +151,7 @@ export const translations = {
     navDiary: "खेत डायरी",
     navProfile: "मेरा खेत",
 
-    // Dashboard Hero
+    // Dashboard Hero & Buttons
     recommendationHero: "प्राथमिक AI अनुशंसा",
     decision: "निर्णय",
     reasoning: "मुख्य कारण",
@@ -122,6 +161,27 @@ export const translations = {
     exploreAiDeepDive: "कारण समझें (AI से पूछें)",
     markAsCompleted: "कार्य संपन्न हुआ",
     actionPostponed: "छिड़काव स्थगित किया गया",
+    optimalRescheduledWindow: "अनुकूल पुनर्नियोजित समय",
+    acknowledgeAndPostpone: "स्वीकारें व स्थगित करें",
+    saving: "सुरक्षित हो रहा है...",
+    askAiButton: "AI से पूछें",
+
+    // AI Modal UI
+    aiModalTitle: "किसानसाथी AI कृषि सहायक",
+    aiModalSubtitle: "सरल भाषा में आपके खेत के लिए सटीक सलाह व समाधान",
+    aiModalPlaceholder: "कुछ भी पूछें (जैसे 'धान की बुवाई कब करें?')",
+    aiModalLoading: "किसानसाथी AI विश्लेषण कर रहा है...",
+    recommendedActionSteps: "अनुशंसित कार्य कदम:",
+
+    // Connective Loop
+    loopTitle: "कनेक्टिव लूप (संपर्क चक्र)",
+    howLoopWorks: "लूप कैसे काम करता है",
+    collapseLoop: "बंद करें",
+    stepFarmerContext: "1. किसान संदर्भ",
+    stepFarmDiary: "2. खेत डायरी",
+    stepLiveWeather: "3. लाइव मौसम",
+    stepAiEngine: "4. AI इंजन",
+    stepHeroDecision: "5. मुख्य निर्णय",
 
     // Live vs Fallback
     liveData: "लाइव डेटा",
@@ -131,22 +191,39 @@ export const translations = {
     liveWeatherBadge: "लाइव मौसम (IMD)",
     fallbackWeatherBadge: "कैश पूर्वानुमान",
 
-    // Weather Card
+    // Weather Section & Card
+    weatherTitle: "कृषि मौसम एवं राडार पूर्वानुमान",
+    weatherSubtitle: "किसान के खेत के स्थान से जुड़ा हुआ वास्तविक समय मौसम",
     temperature: "तापमान",
     rainProbability: "बारिश की संभावना",
+    rainProbLabel: "बारिश सम्भावना",
     humidity: "नमी / आर्द्रता",
     windSpeed: "हवा की गति",
     sprayingFeasibility: "कीटनाशक छिड़काव अनुकूलता",
     irrigationNeed: "सिंचाई आवश्यकता",
+    viewWeatherForecast: "3-दिवसीय पूर्वानुमान एवं छिड़काव सलाह देखें",
+    threeDayForecastTitle: "3-दिवसीय खेत पूर्वानुमान एवं कार्य अवधि",
+    sprayingSafe: "छिड़काव के लिए सुरक्षित",
+    sprayingUnsafe: "बारिश का जोखिम / असुरक्षित",
+    drainageAdvisoryTitle: "जल निकासी कृषि सलाह",
 
-    // Mandi Card
+    // Mandi Section & Card
+    mandiTitle: "लाइव एपीएमसी मंडी भाव एवं बाजार रुझान",
+    mandiSubtitle: "पारदर्शी डेटा संकेतकों के साथ वास्तविक समय थोक मॉडल भाव",
     marketPrice: "मंडी भाव",
     commodity: "फसल / उपज",
     market: "मंडी",
     modalPrice: "मॉडल भाव",
+    modalMandiRate: "मॉडल मंडी भाव",
     minMaxPrice: "न्यूनतम / अधिकतम",
     priceTrend: "भाव का रुझान",
     sellingAdvice: "AI बिक्री सलाह",
+    searchPlaceholder: "फसल या मंडी खोजें...",
+    allCrops: "सभी फसलें",
+    exploreMandiStrategy: "सभी उपज एवं बिक्री रणनीति देखें",
+    marketAdviceButton: "बाजार सलाह",
+    aboveMsp: "एमएसपी से ऊपर",
+    belowMsp: "एमएसपी से नीचे",
 
     // Schemes Card
     schemesHeader: "सरकारी योजनाएं एवं सब्सिडी",
@@ -195,6 +272,7 @@ export const translations = {
     statusMockBackend: "ऑफलाइन / सुरक्षित मॉक मेमोरी सक्रिय",
     switchMode: "डेटा स्रोत बदलें"
   },
+
   ta: {
     appTitle: "கிசான்சாதி AI",
     tagline: "தனிப்பயனாக்கப்பட்ட விவசாய நுண்ணறிவு",
@@ -210,7 +288,7 @@ export const translations = {
     navDiary: "பண்ணை குறிப்பேடு",
     navProfile: "எனது பண்ணை",
 
-    // Dashboard Hero
+    // Dashboard Hero & Buttons
     recommendationHero: "முக்கிய AI பரிந்துரை",
     decision: "செயல் முடிவு",
     reasoning: "முக்கிய காரணம்",
@@ -220,6 +298,27 @@ export const translations = {
     exploreAiDeepDive: "காரணத்தை அறிக (AI)",
     markAsCompleted: "முடிந்தது என குறி",
     actionPostponed: "ஒத்திவைக்கப்பட்டது",
+    optimalRescheduledWindow: "சிறந்த மாற்று நேரம்",
+    acknowledgeAndPostpone: "ஏற்றுக்கொண்டு ஒத்திவைக்க",
+    saving: "சேமிக்கப்படுகிறது...",
+    askAiButton: "AI இடம் கேட்க",
+
+    // AI Modal UI
+    aiModalTitle: "கிசான்சாதி AI விவசாய உதவியாளர்",
+    aiModalSubtitle: "உங்கள் பண்ணைக்கான எளிய மொழி ஆலோசனைகள்",
+    aiModalPlaceholder: "எதுவும் கேளுங்கள் (எ.கா. 'நெல் விதைப்பது எப்போது?')",
+    aiModalLoading: "கிசான்சாதி AI பகுப்பாய்வு செய்கிறது...",
+    recommendedActionSteps: "பரிந்துரைக்கப்பட்ட நடவடிக்கைகள்:",
+
+    // Connective Loop
+    loopTitle: "இணைப்பு வளையம்",
+    howLoopWorks: "வளையம் எவ்வாறு இயங்குகிறது",
+    collapseLoop: "சுருக்குக",
+    stepFarmerContext: "1. விவசாயி விவரம்",
+    stepFarmDiary: "2. பண்ணை குறிப்பேடு",
+    stepLiveWeather: "3. நேரடி வானிலை",
+    stepAiEngine: "4. AI எஞ்சின்",
+    stepHeroDecision: "5. முக்கிய முடிவு",
 
     // Live vs Fallback
     liveData: "நேரடி தரவு",
@@ -229,22 +328,39 @@ export const translations = {
     liveWeatherBadge: "நேரடி வானிலை",
     fallbackWeatherBadge: "முந்தைய வானிலை",
 
-    // Weather Card
+    // Weather Section & Card
+    weatherTitle: "வேளாண் வானிலை மற்றும் கணிப்பு",
+    weatherSubtitle: "விவசாயியின் நிலப்பகுதியுடன் இணைக்கப்பட்ட நேரடி வானிலை",
     temperature: "வெப்பநிலை",
     rainProbability: "மழை வாய்ப்பு",
+    rainProbLabel: "மழை வாய்ப்பு",
     humidity: "ஈரப்பதம்",
     windSpeed: "காற்றின் வேகம்",
     sprayingFeasibility: "மருந்தடிக்கும் சாத்தியக்கூறு",
     irrigationNeed: "நீர்ப்பாசன தேவை",
+    viewWeatherForecast: "3-நாள் கணிப்பு & தெளிப்பு ஆலோசனை காண்க",
+    threeDayForecastTitle: "3-நாள் பண்ணை கணிப்பு & நேர இடைவெளி",
+    sprayingSafe: "தெளிப்பதற்கு பாதுகாப்பானது",
+    sprayingUnsafe: "மழை ஆபத்து / பாதுகாப்பற்றது",
+    drainageAdvisoryTitle: "நீர் வடிகால் வேளாண் ஆலோசனை",
 
-    // Mandi Card
+    // Mandi Section & Card
+    mandiTitle: "நேரடி ஏபிஎம்சி மண்டி விலைகள் & சந்தை போக்குகள்",
+    mandiSubtitle: "வெளிப்படையான தரவு குறிகாட்டிகளுடன் நேரடி சந்தை விலைகள்",
     marketPrice: "சந்தை விலை",
     commodity: "பயிர்",
     market: "மண்டி சந்தை",
     modalPrice: "சராசரி விலை",
+    modalMandiRate: "சராசரி மண்டி விலை",
     minMaxPrice: "குறைந்த / அதிக விலை",
     priceTrend: "விலை போக்கு",
     sellingAdvice: "விற்பனை ஆலோசனை",
+    searchPlaceholder: "பயிர் அல்லது மண்டியைத் தேடுங்கள்...",
+    allCrops: "அனைத்து பயிர்களும்",
+    exploreMandiStrategy: "அனைத்து பயிர்கள் & விற்பனை உத்தியைக் காண்க",
+    marketAdviceButton: "சந்தை ஆலோசனை",
+    aboveMsp: "எம்எஸ்பிக்கு மேல்",
+    belowMsp: "எம்எஸ்பிக்கு கீழ்",
 
     // Schemes Card
     schemesHeader: "அரசு திட்டங்கள் மற்றும் மானியங்கள்",
@@ -293,6 +409,7 @@ export const translations = {
     statusMockBackend: "ஆஃப்லைன் / மாதிரி நினைவகம்",
     switchMode: "முறை மாற்றவும்"
   },
+
   mr: {
     appTitle: "किसानसाथी AI",
     tagline: "वैयक्तिकृत कृषी बुद्धिमत्ता",
@@ -308,7 +425,7 @@ export const translations = {
     navDiary: "शेत रोजनिशी",
     navProfile: "माझे शेत",
 
-    // Dashboard Hero
+    // Dashboard Hero & Buttons
     recommendationHero: "प्राधान्य AI शिफारस",
     decision: "कृती निर्णय",
     reasoning: "मुख्य कारण",
@@ -318,6 +435,27 @@ export const translations = {
     exploreAiDeepDive: "कारण जाणून घ्या (AI)",
     markAsCompleted: "काम पूर्ण झाले",
     actionPostponed: "फवारणी पुढे ढकलली",
+    optimalRescheduledWindow: "योग्य पुनर्नियोजित वेळ",
+    acknowledgeAndPostpone: "स्वीकारा व पुढे ढकला",
+    saving: "जतन होत आहे...",
+    askAiButton: "AI ला विचारा",
+
+    // AI Modal UI
+    aiModalTitle: "किसानसाथी AI शेती सहाय्यक",
+    aiModalSubtitle: "तुमच्या शेतासाठी सोप्या भाषेतील सल्ले व उपाय",
+    aiModalPlaceholder: "काहीही विचारा (उदा. 'फवारणी कधी करावी?')",
+    aiModalLoading: "किसानसाथी AI विश्लेषण करत आहे...",
+    recommendedActionSteps: "शिफारस केलेल्या कृती पायऱ्या:",
+
+    // Connective Loop
+    loopTitle: "कनेक्टिव्ह लूप",
+    howLoopWorks: "लूप कसे कार्य करते",
+    collapseLoop: "बंद करा",
+    stepFarmerContext: "1. शेतकरी संदर्भ",
+    stepFarmDiary: "2. शेत रोजनिशी",
+    stepLiveWeather: "3. थेट हवामान",
+    stepAiEngine: "4. AI इंजिन",
+    stepHeroDecision: "5. मुख्य निर्णय",
 
     // Live vs Fallback
     liveData: "थेट डेटा",
@@ -327,22 +465,39 @@ export const translations = {
     liveWeatherBadge: "थेट हवामान (IMD)",
     fallbackWeatherBadge: "कॅश अंदाज",
 
-    // Weather Card
+    // Weather Section & Card
+    weatherTitle: "कृषी हवामान व अंदाज",
+    weatherSubtitle: "शेतकऱ्याच्या शेतजमिनीशी जोडलेले थेट हवामान",
     temperature: "तापमान",
     rainProbability: "पावसाची शक्यता",
+    rainProbLabel: "पाऊस शक्यता",
     humidity: "आर्द्रता",
     windSpeed: "वाऱ्याचा वेग",
     sprayingFeasibility: "फवारणी अनुकूलता",
     irrigationNeed: "पाणी देण्याची गरज",
+    viewWeatherForecast: "३-दिवसांचा अंदाज व फवारणी सल्ला पहा",
+    threeDayForecastTitle: "३-दिवसीय शेत अंदाज व वेळ खिडकी",
+    sprayingSafe: "फवारणीसाठी सुरक्षित",
+    sprayingUnsafe: "पावसाची शक्यता / असुरक्षित",
+    drainageAdvisoryTitle: "पाणी निचरा कृषी सल्ला",
 
-    // Mandi Card
+    // Mandi Section & Card
+    mandiTitle: "थेट कृषी उत्पन्न बाजार समिती दर व कल",
+    mandiSubtitle: "पारदर्शक माहिती दर्शकांसह थेट घाऊक बाजारभाव",
     marketPrice: "बाजारभाव",
     commodity: "शेतमाल",
     market: "कृषी उत्पन्न बाजार समिती",
     modalPrice: "सरासरी दर",
+    modalMandiRate: "सरासरी बाजारभाव",
     minMaxPrice: "किमान / कमाल",
     priceTrend: "दराचा कल",
     sellingAdvice: "AI विक्री सल्ला",
+    searchPlaceholder: "शेतमाल किंवा बाजार समिती शोधा...",
+    allCrops: "सर्व पिके",
+    exploreMandiStrategy: "सर्व शेतमाल व विक्री धोरण पहा",
+    marketAdviceButton: "बाजार सल्ला",
+    aboveMsp: "हमीभावापेक्षा जास्त",
+    belowMsp: "हमीभावापेक्षा कमी",
 
     // Schemes Card
     schemesHeader: "शासकीय योजना व अनुदान",
@@ -387,7 +542,7 @@ export const translations = {
     simulateHint: "पात्रतेत बदल पाहण्यासाठी मूल्ये बदला",
 
     // Backend status
-    statusLiveBackend: "फास्टएपीआय बॅकएंडशी जोडलेले",
+    statusLiveBackend: "फास्टएपीआई बॅकएंडशी जोडलेले",
     statusMockBackend: "ऑफलाइन / सुरक्षित मॉक मेमरी सक्रिय",
     switchMode: "डेटा स्रोत बदला"
   }

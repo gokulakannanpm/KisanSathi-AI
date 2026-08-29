@@ -33,10 +33,10 @@ export const MandiView = () => {
       <div>
         <h2 className="section-title">
           <TrendingUp size={24} color="#15803d" />
-          <span>Live APMC Mandi Rates & Market Trends</span>
+          <span>{t.mandiTitle}</span>
         </h2>
         <p className="section-subtitle">
-          Real-time wholesale modal prices with transparent LIVE vs FALLBACK data indicators
+          {t.mandiSubtitle}
         </p>
       </div>
 
@@ -74,7 +74,7 @@ export const MandiView = () => {
           <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
           <input
             type="text"
-            placeholder="Search commodity or market..."
+            placeholder={t.searchPlaceholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
@@ -103,7 +103,7 @@ export const MandiView = () => {
               whiteSpace: 'nowrap'
             }}
           >
-            All Crops
+            {t.allCrops}
           </button>
           {['Cotton', 'Soybean', 'Wheat', 'Gram'].map((crop) => (
             <button
@@ -161,7 +161,7 @@ export const MandiView = () => {
                 }}>
                   <div>
                     <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>
-                      Modal Mandi Rate
+                      {t.modalMandiRate}
                     </div>
                     <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#15803d' }}>
                       ₹{item.modal_price.toLocaleString()} <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b' }}>/ Qtl</span>
@@ -169,7 +169,7 @@ export const MandiView = () => {
                   </div>
 
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Range</div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{t.minMaxPrice}</div>
                     <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>
                       ₹{item.min_price} - ₹{item.max_price}
                     </div>
@@ -191,7 +191,7 @@ export const MandiView = () => {
                     marginBottom: '0.75rem'
                   }}>
                     <span>Govt MSP: ₹{item.msp}</span>
-                    <span>{isAboveMsp ? `+₹${item.modal_price - item.msp} above MSP` : `-₹${item.msp - item.modal_price} below MSP`}</span>
+                    <span>{isAboveMsp ? `+₹${item.modal_price - item.msp} ${t.aboveMsp}` : `-₹${item.msp - item.modal_price} ${t.belowMsp}`}</span>
                   </div>
                 )}
 
@@ -206,7 +206,7 @@ export const MandiView = () => {
                     color: '#166534',
                     lineHeight: 1.4
                   }}>
-                    <strong>AI Harvest Selling Tip:</strong> {item.ai_selling_tip}
+                    <strong>{t.sellingAdvice}:</strong> {item.ai_selling_tip}
                   </div>
                 )}
               </div>
@@ -237,7 +237,7 @@ export const MandiView = () => {
                   }}
                 >
                   <Sparkles size={13} />
-                  <span>Market Advice</span>
+                  <span>{t.marketAdviceButton}</span>
                 </button>
               </div>
             </div>
