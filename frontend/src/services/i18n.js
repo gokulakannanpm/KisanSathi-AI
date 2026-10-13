@@ -158,7 +158,37 @@ export const translations = {
     // Backend status
     statusLiveBackend: "Connected to Live FastAPI Backend",
     statusMockBackend: "Offline / Using Persistent Mock Memory",
-    switchMode: "Toggle Data Source"
+    switchMode: "Toggle Data Source",
+
+    // Crop Planning
+    suggestCropToSow: "Suggest a Crop to Sow",
+    suggestCropToSowDesc: "Analyze soil, season, and verified market trends to suggest optimal crops",
+    cropPlanningTitle: "On-Demand Crop Sowing Planner",
+    cropPlanningSubtitle: "Rule-based agro-climatic suitability & transparent financial projections",
+    estimatedNetReturn: "Estimated Net Return",
+    cultivationDuration: "Duration",
+    projectedGrossRevenue: "Gross Revenue",
+    estimatedCultivationCost: "Est. Cost",
+    expectedYield: "Expected Yield",
+    perAcre: "per acre",
+    totalPlot: "Total Plot",
+    disclaimerFinancial: "Financial and yield estimates are based on ICAR/CACP regional agronomic benchmarks and historical mandi modal prices. Actual farm-gate returns vary with microclimate, pest pressures, and market dynamics.",
+
+    // Weather Advice & Diary
+    actionAddedToDiary: "Action added to Farm Diary",
+    actionAlreadyInDiary: "Already scheduled in Farm Diary",
+    addToFarmDiary: "Add to Farm Diary",
+    adding: "Adding...",
+    plannedWeatherAction: "Planned Weather Advisory",
+
+    // Voice Accessibility
+    listen: "Speak Question",
+    listening: "Listening...",
+    stopListening: "Stop Voice Input",
+    readAloud: "Read Aloud",
+    stopReading: "Stop Audio",
+    voiceNotSupported: "Voice recognition is not supported in this browser. Please type your query.",
+    micPermissionDenied: "Microphone access was denied. Please allow microphone permission in your browser settings."
   },
 
   hi: {
@@ -320,7 +350,37 @@ export const translations = {
     // Backend status
     statusLiveBackend: "फास्टएपीआई बैकएंड से जुड़ा हुआ",
     statusMockBackend: "ऑफलाइन / सुरक्षित मॉक मेमोरी सक्रिय",
-    switchMode: "डेटा स्रोत बदलें"
+    switchMode: "डेटा स्रोत बदलें",
+
+    // Crop Planning
+    suggestCropToSow: "बुवाई हेतु फसल सुझाव",
+    suggestCropToSowDesc: "मिट्टी, मौसम और सत्यापित मंडी भावों के आधार पर उपयुक्त फसल का विश्लेषण करें",
+    cropPlanningTitle: "मांग-आधारित फसल योजनाकार",
+    cropPlanningSubtitle: "कृषि-जलवायु अनुकूलता और पारदर्शी वित्तीय आय का आंकलन",
+    estimatedNetReturn: "अनुमानित शुद्ध आय",
+    cultivationDuration: "अवधि",
+    projectedGrossRevenue: "कुल संभावित आय",
+    estimatedCultivationCost: "अनुमानित लागत",
+    expectedYield: "अपेक्षित उपज",
+    perAcre: "प्रति एकड़",
+    totalPlot: "कुल रकबा",
+    disclaimerFinancial: "वित्तीय व उपज अनुमान ICAR/CACP क्षेत्रीय मानकों व ऐतिहासिक मंडी दरों पर आधारित हैं। वास्तविक आय स्थानीय मौसम व बाजार पर निर्भर करती है।",
+
+    // Weather Advice & Diary
+    actionAddedToDiary: "खेत डायरी में कार्य दर्ज किया गया",
+    actionAlreadyInDiary: "खेत डायरी में पहले से निर्धारित है",
+    addToFarmDiary: "खेत डायरी में जोड़ें",
+    adding: "जोड़ा जा रहा है...",
+    plannedWeatherAction: "नियोजित मौसम परामर्श",
+
+    // Voice Accessibility
+    listen: "बोलकर पूछें",
+    listening: "सुन रहे हैं...",
+    stopListening: "आवाज रोकें",
+    readAloud: "सुनें (आवाज)",
+    stopReading: "ऑडियो बंद करें",
+    voiceNotSupported: "इस ब्राउज़र में आवाज पहचान उपलब्ध नहीं है। कृपया लिखकर पूछें।",
+    micPermissionDenied: "माइक्रोफ़ोन अनुमति अस्वीकृत। कृपया ब्राउज़र सेटिंग्स में माइक्रोफ़ोन चालू करें।"
   },
 
   ta: {
@@ -482,7 +542,37 @@ export const translations = {
     // Backend status
     statusLiveBackend: "நேரடி சேவையக இணைப்பு",
     statusMockBackend: "ஆஃப்லைன் / மாதிரி நினைவகம்",
-    switchMode: "முறை மாற்றவும்"
+    switchMode: "முறை மாற்றவும்",
+
+    // Crop Planning
+    suggestCropToSow: "விதைப்புக்கு பயிர் பரிந்துரை",
+    suggestCropToSowDesc: "மண், பருவம் மற்றும் சரிபார்க்கப்பட்ட சந்தை விலைகளின் அடிப்படையில் சிறந்த பயிரை தேர்ந்தெடுக்கவும்",
+    cropPlanningTitle: "பயிர் விதைப்பு திட்டமிடுபவர்",
+    cropPlanningSubtitle: "விவசாய தட்பவெப்ப பொருத்தம் மற்றும் வெளிப்படையான நிதி வருவாய் மதிப்பீடு",
+    estimatedNetReturn: "மதிப்பிடப்பட்ட நிகர வருமானம்",
+    cultivationDuration: "பயிர் காலம்",
+    projectedGrossRevenue: "மொத்த வருவாய்",
+    estimatedCultivationCost: "சாகுபடி செலவு",
+    expectedYield: "எதிர்பார்க்கப்படும் மகசூல்",
+    perAcre: "ஏக்கருக்கு",
+    totalPlot: "முழு நிலப்பரப்பு",
+    disclaimerFinancial: "நிதி மற்றும் மகசூல் மதிப்பீடுகள் ICAR/CACP பிராந்திய வேளாண் அளவுகோல்கள் மற்றும் வரலாற்று மண்டி விலைகளை அடிப்படையாகக் கொண்டவை.",
+
+    // Weather Advice & Diary
+    actionAddedToDiary: "பண்ணை குறிப்பேட்டில் சேர்க்கப்பட்டது",
+    actionAlreadyInDiary: "ஏற்கனவே பண்ணை குறிப்பேட்டில் திட்டமிடப்பட்டுள்ளது",
+    addToFarmDiary: "குறிப்பேட்டில் சேர்க்க",
+    adding: "சேர்க்கிறது...",
+    plannedWeatherAction: "திட்டமிடப்பட்ட வானிலை ஆலோசனை",
+
+    // Voice Accessibility
+    listen: "பேசி கேளுங்கள்",
+    listening: "கேட்கிறது...",
+    stopListening: "நிறுத்து",
+    readAloud: "ஒலிக்கேட்க",
+    stopReading: "ஒலியை நிறுத்து",
+    voiceNotSupported: "இந்த உலாவியில் குரல் உள்ளீடு ஆதரிக்கப்படவில்லை. தயவுசெய்து தட்டச்சு செய்யவும்.",
+    micPermissionDenied: "மைக்ரோஃபோன் அனுமதி மறுக்கப்பட்டது. உலாவி அமைப்புகளில் அனுமதிக்கவும்."
   },
 
   mr: {
@@ -644,6 +734,36 @@ export const translations = {
     // Backend status
     statusLiveBackend: "फास्टएपीआई बॅकएंडशी जोडलेले",
     statusMockBackend: "ऑफलाइन / सुरक्षित मॉक मेमरी सक्रिय",
-    switchMode: "डेटा स्रोत बदला"
+    switchMode: "डेटा स्रोत बदला",
+
+    // Crop Planning
+    suggestCropToSow: "पेरणीसाठी पीक सुचवा",
+    suggestCropToSowDesc: "माती, हंगाम आणि पडताळणी केलेल्या बाजारभावांवर आधारित योग्य पिकाचे विश्लेषण",
+    cropPlanningTitle: "मागणीनुसार पीक नियोजन",
+    cropPlanningSubtitle: "हवामान अनुकूलता आणि पारदर्शक आर्थिक नफा अंदाज",
+    estimatedNetReturn: "अंदाजे निव्वळ नफा",
+    cultivationDuration: "कालावधी",
+    projectedGrossRevenue: "एकूण संभाव्य उत्पन्न",
+    estimatedCultivationCost: "अंदाजे खर्च",
+    expectedYield: "अपेक्षित उत्पादन",
+    perAcre: "प्रति एकर",
+    totalPlot: "एकूण शेत",
+    disclaimerFinancial: "आर्थिक आणि उत्पादन अंदाज ICAR/CACP प्रादेशिक मानकांवर आणि ऐतिहासिक बाजारभावांवर आधारित आहेत.",
+
+    // Weather Advice & Diary
+    actionAddedToDiary: "शेत रोजनिशीत नोंद केली",
+    actionAlreadyInDiary: "शेत रोजनिशीत आधीच नियोजित आहे",
+    addToFarmDiary: "शेत रोजनिशीत जोडा",
+    adding: "जोडत आहे...",
+    plannedWeatherAction: "नियोजित हवामान सल्ला",
+
+    // Voice Accessibility
+    listen: "बोलून विचारा",
+    listening: "ऐकत आहे...",
+    stopListening: "आवाज थांबवा",
+    readAloud: "ऐका (ऑडिओ)",
+    stopReading: "ऑडिओ बंद करा",
+    voiceNotSupported: "या ब्राउझरमध्ये आवाज ओळख समर्थित नाही. कृपया टाईप करा.",
+    micPermissionDenied: "मायक्रोफोन परवानगी नाकारली. कृपया ब्राउझर सेटिंग्जमध्ये मायक्रोफोन सुरू करा."
   }
 };

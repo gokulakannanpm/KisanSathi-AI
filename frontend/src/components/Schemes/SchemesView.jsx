@@ -9,15 +9,19 @@ import {
   ChevronRight, 
   ShieldCheck, 
   Sparkles,
-  Info
+  Info,
+  AlertTriangle
 } from 'lucide-react';
 import { useFarmer } from '../../context/FarmerContext';
 import { AudioNarrationButton } from '../Common/AudioNarrationButton';
 
 export const SchemesView = () => {
   const { schemes, setSelectedScheme, t, language, farmer } = useFarmer();
-  const [filterEligibleOnly, setFilterEligibleOnly] = useState(false);
+  // Matching / eligible schemes is the default primary view
+  const [filterEligibleOnly, setFilterEligibleOnly] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+
+  const eligibleCount = schemes.filter(s => s.eligible).length;
 
   const filteredSchemes = schemes.filter((s) => {
     const matchesEligibility = filterEligibleOnly ? s.eligible : true;
@@ -33,12 +37,40 @@ export const SchemesView = () => {
       <div>
         <h2 className="section-title">
           <FileText size={24} color="#15803d" />
-          <span>{t.schemesHeader}</span>
+          <span>{t.schemesHeader || "Government Schemes & Subsidies"}</span>
         </h2>
         <p className="section-subtitle">
-          Deterministic, rule-based matching evaluated against your <strong>{farmer?.land_size_acres || 2.5} acre</strong> farm holding in {farmer?.state || 'Maharashtra'}
+          {farmer ? (
+            <>
+              Deterministic, rule-based matching evaluated against {farmer.name}'s <strong>{farmer.land_size_acres} acre</strong> farm holding in {farmer.state || 'your state'}
+            </>
+          ) : (
+            <>
+              Displaying government schemes catalogue with general eligibility criteria.
+            </>
+          )}
         </p>
       </div>
+
+      {/* Profile-Unavailable State Banner */}
+      {!farmer && (
+        <div style={{
+          background: '#fffbeb',
+          border: '1px solid #fef3c7',
+          borderRadius: 'var(--radius-lg)',
+          padding: '0.85rem 1rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+          fontSize: '0.85rem',
+          color: '#92400e'
+        }}>
+          <AlertTriangle size={20} color="#d97706" style={{ flexShrink: 0 }} />
+          <div>
+            <strong>Farmer Profile Unavailable:</strong> Personalized eligibility evaluation requires an active farmer profile. Please select or register a farmer in the top bar to verify landholding and crop rules. General criteria shown below.
+          </div>
+        </div>
+      )}
 
       {/* Search and Filters Bar */}
       <div style={{
@@ -67,12 +99,26 @@ export const SchemesView = () => {
           />
         </div>
 
-        {/* Filter Toggle */}
+        {/* Filter Toggle: Defaults to Eligible / Matching Schemes */}
         <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button
+            onClick={() => setFilterEligibleOnly(true)}
+            style={{
+              padding: '0.45rem 0.95rem',
+              borderRadius: '999px',
+              fontWeight: 700,
+              fontSize: '0.8rem',
+              background: filterEligibleOnly ? '#166534' : '#ffffff',
+              color: filterEligibleOnly ? 'white' : '#166534',
+              border: '1px solid #86efac'
+            }}
+          >
+            Eligible Schemes ({eligibleCount})
+          </button>
           <button
             onClick={() => setFilterEligibleOnly(false)}
             style={{
-              padding: '0.45rem 0.85rem',
+              padding: '0.45rem 0.95rem',
               borderRadius: '999px',
               fontWeight: 700,
               fontSize: '0.8rem',
@@ -83,22 +129,38 @@ export const SchemesView = () => {
           >
             All Schemes ({schemes.length})
           </button>
-          <button
-            onClick={() => setFilterEligibleOnly(true)}
-            style={{
-              padding: '0.45rem 0.85rem',
-              borderRadius: '999px',
-              fontWeight: 700,
-              fontSize: '0.8rem',
-              background: filterEligibleOnly ? '#166534' : '#ffffff',
-              color: filterEligibleOnly ? 'white' : '#166534',
-              border: '1px solid #86efac'
-            }}
-          >
-            Eligible Only ({schemes.filter(s => s.eligible).length})
-          </button>
         </div>
       </div>
+
+      {/* Empty State */}
+      {filteredSchemes.length === 0 && (
+        <div className="ks-card" style={{
+          textAlign: 'center',
+          padding: '2.5rem 1.5rem',
+          background: '#ffffff',
+          borderRadius: 'var(--radius-lg)',
+          border: '1px dashed var(--border-medium)'
+        }}>
+          <Info size={36} color="#94a3b8" style={{ margin: '0 auto 0.75rem' }} />
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e293b', marginBottom: '0.4rem' }}>
+            {filterEligibleOnly ? "No Matching Eligible Schemes" : "No Schemes Found"}
+          </h3>
+          <p style={{ fontSize: '0.85rem', color: '#64748b', maxWidth: '440px', margin: '0 auto 1.25rem' }}>
+            {filterEligibleOnly 
+              ? "Based on your current land size and crop preferences, no eligible schemes matched. Switch to 'All Schemes' to view universal central and state programmes."
+              : "No schemes match your search query."}
+          </p>
+          {filterEligibleOnly && (
+            <button
+              onClick={() => setFilterEligibleOnly(false)}
+              className="btn-primary"
+              style={{ margin: '0 auto' }}
+            >
+              Switch to All Schemes ({schemes.length})
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Schemes Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
@@ -122,12 +184,12 @@ export const SchemesView = () => {
                     {scheme.eligible ? (
                       <>
                         <CheckCircle2 size={13} />
-                        <span>{t.eligible}</span>
+                        <span>{t.eligible || "Eligible"}</span>
                       </>
                     ) : (
                       <>
                         <XCircle size={13} />
-                        <span>{t.notEligible}</span>
+                        <span>{t.notEligible || "Not Eligible"}</span>
                       </>
                     )}
                   </span>
@@ -152,14 +214,14 @@ export const SchemesView = () => {
                   marginBottom: '0.75rem'
                 }}>
                   <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#166534', textTransform: 'uppercase', marginBottom: '0.2rem' }}>
-                    {t.benefits}
+                    {t.benefits || "Benefits"}
                   </div>
                   <div style={{ fontSize: '0.85rem', color: '#14532d', fontWeight: 600, lineHeight: 1.4 }}>
                     {scheme.benefits}
                   </div>
                 </div>
 
-                {/* Why Eligible Breakdown */}
+                {/* Deterministic Eligibility Breakdown */}
                 {scheme.eligibility_reasons && scheme.eligibility_reasons.length > 0 && (
                   <div style={{ fontSize: '0.78rem', color: '#64748b', marginBottom: '0.75rem' }}>
                     <div style={{ fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>
@@ -188,13 +250,20 @@ export const SchemesView = () => {
                 </span>
                 
                 <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedScheme(scheme);
+                  }}
                   style={{
                     color: 'var(--primary)',
                     fontWeight: 700,
                     fontSize: '0.85rem',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '0.25rem'
+                    gap: '0.25rem',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer'
                   }}
                 >
                   <span>View Details & Apply</span>

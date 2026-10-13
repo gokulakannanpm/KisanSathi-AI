@@ -18,6 +18,67 @@ export const mockFarmerProfile = {
   pm_kisan_registered: true
 };
 
+export const mockFarmerProfiles = {
+  demo_farmer_01: mockFarmerProfile,
+  demo_farmer_02: {
+    id: "demo_farmer_02",
+    name: "Suresh Patel",
+    phone: "+91 98123 45678",
+    state: "Gujarat",
+    district: "Rajkot",
+    taluka: "Jasdan",
+    village: "Atkot",
+    land_size_acres: 6.0,
+    farmer_category: "medium",
+    crops: ["groundnut", "cotton", "wheat"],
+    soil_type: "Medium Black Alluvial",
+    owns_land: true,
+    has_irrigation: true,
+    irrigation_type: "Open Well + Sprinkler System",
+    is_tax_payer: false,
+    age: 48,
+    pm_kisan_registered: true
+  },
+  demo_farmer_03: {
+    id: "demo_farmer_03",
+    name: "Anitha Selvam",
+    phone: "+91 97890 12345",
+    state: "Tamil Nadu",
+    district: "Thanjavur",
+    taluka: "Orathanadu",
+    village: "Pukkarai",
+    land_size_acres: 1.5,
+    farmer_category: "marginal",
+    crops: ["paddy", "sugarcane"],
+    soil_type: "Clay Loam",
+    owns_land: true,
+    has_irrigation: true,
+    irrigation_type: "Cauvery Canal + Borewell",
+    is_tax_payer: false,
+    age: 39,
+    pm_kisan_registered: true
+  },
+  demo_farmer_04: {
+    id: "demo_farmer_04",
+    name: "Vikram Singh",
+    phone: "+91 98140 99887",
+    state: "Punjab",
+    district: "Bhatinda",
+    taluka: "Talwandi Sabo",
+    village: "Rama",
+    land_size_acres: 12.0,
+    farmer_category: "large",
+    crops: ["wheat", "mustard", "cotton"],
+    soil_type: "Loamy Soil",
+    owns_land: true,
+    has_irrigation: true,
+    irrigation_type: "Canal + Deep Tubewell",
+    is_tax_payer: false,
+    age: 52,
+    pm_kisan_registered: true
+  }
+};
+
 export const mockDiaryEntries = [
   {
     id: "diary_001",

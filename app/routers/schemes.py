@@ -85,11 +85,14 @@ def _resolve_farmer_profile(
             real_profile = farmer_service.get_farmer_profile(farmer_id)
             if real_profile:
                 profile.update(real_profile)
+        except HTTPException:
+            raise
         except Exception as e:
-            logger.debug(f"Failed to fetch farmer profile for '{farmer_id}': {e}")
-            demo_profile = scheme_engine.get_demo_farmer_profile()
-            if demo_profile:
-                profile.update(demo_profile)
+            logger.error(f"Failed to fetch farmer profile for '{farmer_id}': {e}")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Farmer profile '{farmer_id}' not found."
+            )
         profile["id"] = farmer_id
     elif any(x is not None for x in [land_acres, crop, state, category]):
         # Farmer context constructed on-the-fly from query parameters

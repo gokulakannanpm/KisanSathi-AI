@@ -15,6 +15,7 @@ import { FarmDiary } from './components/Diary/FarmDiary';
 import { AddDiaryModal } from './components/Diary/AddDiaryModal';
 import { FarmerProfile } from './components/Profile/FarmerProfile';
 import { AIExplainerModal } from './components/AI/AIExplainerModal';
+import { CropPlannerModal } from './components/Dashboard/CropPlannerModal';
 import { Loader2 } from 'lucide-react';
 import './App.css';
 
@@ -99,6 +100,7 @@ export function App() {
         onClose={() => setIsAddDiaryOpen(false)} 
       />
       <AIExplainerModal />
+      <CropPlannerModal />
 
     </div>
   );

@@ -14,7 +14,12 @@ export const SUPPORTED_LANGUAGES = [
   { code: 'mr', name: 'Marathi', nativeName: 'मराठी' }
 ];
 
-export const API_BASE = 'https://kisansathi-ai-asap.onrender.com/api';
+// Determine API base: use environment variable if provided, or local relative path if on localhost/preview, or Render production fallback
+export const API_BASE = 
+  import.meta.env.VITE_API_BASE || 
+  (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? '/api'
+    : 'https://kisansathi-ai-asap.onrender.com/api');
 
 export const COMMODITY_OPTIONS = [
   'Cotton',
@@ -22,14 +27,16 @@ export const COMMODITY_OPTIONS = [
   'Wheat',
   'Gram (Chana)',
   'Paddy (Dhan)',
+  'Groundnut',
   'Maize',
+  'Mustard',
   'Onion',
-  'Mustard'
+  'Tomato'
 ];
 
 export const STATES_AND_DISTRICTS = {
   'Maharashtra': ['Nagpur', 'Amravati', 'Nashik', 'Pune', 'Aurangabad', 'Yavatmal'],
   'Gujarat': ['Rajkot', 'Surat', 'Ahmedabad', 'Junagadh'],
-  'Tamil Nadu': ['Thanjavur', 'Coimbatore', 'Madurai', 'Salem', 'Tiruchirappalli'],
+  'Tamil Nadu': ['Thanjavur', 'Coimbatore', 'Madurai', 'Salem', 'Tiruchirappalli', 'Chennai'],
   'Punjab': ['Bhatinda', 'Ludhiana', 'Patiala', 'Amritsar', 'Jalandhar']
 };

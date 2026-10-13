@@ -23,6 +23,11 @@ export const FarmerProvider = ({ children }) => {
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiModalContext, setAiModalContext] = useState(null);
 
+  // On-Demand Crop Planning State (Never runs automatically on page load)
+  const [isCropPlannerOpen, setIsCropPlannerOpen] = useState(false);
+  const [cropPlanData, setCropPlanData] = useState(null);
+  const [cropPlanLoading, setCropPlanLoading] = useState(false);
+
   // Load all initial data for a specific farmer and language
   const loadData = async (lang = language, targetFarmerId = farmerId) => {
     setLoading(true);
@@ -31,17 +36,17 @@ export const FarmerProvider = ({ children }) => {
         apiService.getFarmerProfile(targetFarmerId),
         apiService.getDiaryEntries(targetFarmerId),
         apiService.getCurrentWeather(targetFarmerId),
-        apiService.getMandiPrices(),
+        apiService.getMandiPrices({ farmer_id: targetFarmerId }),
         apiService.getRecommendation(targetFarmerId),
         apiService.getSchemes(targetFarmerId, lang)
       ]);
 
       setFarmer(profileData);
-      setDiary(diaryData);
+      setDiary(diaryData || []);
       setWeather(weatherData);
-      setMandiPrices(mandiData);
+      setMandiPrices(mandiData || []);
       setRecommendation(recData);
-      setSchemes(schemesData);
+      setSchemes(schemesData || []);
       setIsBackendConnected(apiService.getBackendStatus());
     } catch (err) {
       console.error("Error loading KisanSathi data:", err);
@@ -97,7 +102,32 @@ export const FarmerProvider = ({ children }) => {
     setAiModalContext(null);
   };
 
-  // Multilingual text lookup
+  // On-Demand Crop Planning (Runs ONLY upon explicit farmer invocation)
+  const openCropPlanner = async (options = {}) => {
+    setIsCropPlannerOpen(true);
+    setCropPlanLoading(true);
+    try {
+      const data = await apiService.getCropPlan(farmerId, {
+        state: farmer?.state,
+        district: farmer?.district,
+        land_size_acres: farmer?.land_size_acres,
+        soil_type: farmer?.soil_type,
+        has_irrigation: farmer?.has_irrigation,
+        ...options
+      });
+      setCropPlanData(data);
+    } catch (err) {
+      console.error("Failed to generate crop plan:", err);
+    } finally {
+      setCropPlanLoading(false);
+    }
+  };
+
+  const closeCropPlanner = () => {
+    setIsCropPlannerOpen(false);
+  };
+
+  // Multilingual text lookup with fallback
   const t = translations[language] || translations.en;
 
   return (
@@ -115,6 +145,7 @@ export const FarmerProvider = ({ children }) => {
       addDiaryEntry,
       weather,
       mandiPrices,
+      setMandiPrices,
       recommendation,
       acknowledgeRecommendationAction,
       schemes,
@@ -126,7 +157,13 @@ export const FarmerProvider = ({ children }) => {
       isAiModalOpen,
       openAiExplainer,
       closeAiExplainer,
-      aiModalContext
+      aiModalContext,
+      // Crop planner
+      isCropPlannerOpen,
+      openCropPlanner,
+      closeCropPlanner,
+      cropPlanData,
+      cropPlanLoading
     }}>
       {children}
     </FarmerContext.Provider>

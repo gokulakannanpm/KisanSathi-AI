@@ -209,7 +209,12 @@ class FarmerService:
         try:
             farmer = db.query(Farmer).filter(Farmer.id == farmer_id).first()
             if not farmer:
-                template = self.DEFAULT_TEMPLATES.get(farmer_id, self.DEFAULT_TEMPLATES["demo_farmer_01"])
+                if farmer_id not in self.DEFAULT_TEMPLATES:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail=f"Farmer profile with ID '{farmer_id}' not found."
+                    )
+                template = self.DEFAULT_TEMPLATES[farmer_id]
                 farmer = Farmer(
                     id=farmer_id,
                     name=template["name"],

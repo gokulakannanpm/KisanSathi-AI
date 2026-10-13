@@ -13,15 +13,19 @@ class WeatherService:
         self,
         farmer_id: Optional[str] = None,
         latitude: Optional[float] = None,
-        longitude: Optional[float] = None
+        longitude: Optional[float] = None,
+        district: Optional[str] = None,
+        state: Optional[str] = None
     ) -> Dict[str, Any]:
-        district = None
-        state = None
+        crops = None
         if farmer_id:
             try:
                 profile = farmer_service.get_farmer_profile(farmer_id)
-                district = profile.get("district")
-                state = profile.get("state")
+                if not district:
+                    district = profile.get("district")
+                if not state:
+                    state = profile.get("state")
+                crops = profile.get("crops")
             except Exception as e:
                 logger.debug(f"Could not load farmer profile for {farmer_id}: {e}")
 
@@ -30,7 +34,8 @@ class WeatherService:
             latitude=latitude,
             longitude=longitude,
             district=district,
-            state=state
+            state=state,
+            farmer_crops=crops
         )
 
 

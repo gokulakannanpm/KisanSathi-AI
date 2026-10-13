@@ -10,12 +10,13 @@ import {
   ArrowRight,
   HelpCircle,
   TrendingUp,
-  CloudRain
+  CloudRain,
+  Sprout
 } from 'lucide-react';
 import { useFarmer } from '../../context/FarmerContext';
 
 export const HeroRecommendation = () => {
-  const { recommendation, acknowledgeRecommendationAction, t, openAiExplainer } = useFarmer();
+  const { recommendation, acknowledgeRecommendationAction, t, openAiExplainer, openCropPlanner } = useFarmer();
   const [submitting, setSubmitting] = useState(false);
 
   if (!recommendation) return null;
@@ -213,6 +214,25 @@ export const HeroRecommendation = () => {
               <span>{submitting ? t.saving : t.acknowledgeAndPostpone}</span>
             </>
           )}
+        </button>
+
+        <button
+          id="btn-suggest-crop-to-sow"
+          onClick={() => openCropPlanner && openCropPlanner()}
+          className="btn-secondary"
+          style={{
+            background: '#f0fdf4',
+            borderColor: '#86efac',
+            color: '#15803d',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            fontWeight: 700
+          }}
+          title={t.suggestCropToSowDesc || "Analyze soil, season, and verified market trends to suggest optimal crops"}
+        >
+          <Sprout size={18} color="#15803d" />
+          <span>{t.suggestCropToSow || 'Suggest a Crop to Sow'}</span>
         </button>
       </div>
     </section>
