@@ -6,14 +6,21 @@ import {
   MapPin, 
   Wifi, 
   WifiOff, 
-  UserCheck 
+  UserCheck,
+  LogIn,
+  LogOut,
+  UserPlus,
+  Sliders,
+  ShieldCheck
 } from 'lucide-react';
 import { useFarmer } from '../context/FarmerContext';
+import { useAuth } from '../context/AuthContext';
 import { DEMO_FARMERS, SUPPORTED_LANGUAGES } from '../config/constants';
 
 export const Header = () => {
   const { 
     farmerId,
+    demoFarmerId,
     switchFarmer,
     language, 
     setLanguage, 
@@ -22,6 +29,17 @@ export const Header = () => {
     isBackendConnected,
     openAiExplainer 
   } = useFarmer();
+
+  const {
+    user,
+    isAuthenticated,
+    isDemoMode,
+    logout,
+    switchToDemo,
+    switchToRegistered,
+    openLogin,
+    openRegister
+  } = useAuth();
 
   return (
     <header style={{
@@ -76,7 +94,7 @@ export const Header = () => {
                 borderRadius: '999px',
                 letterSpacing: '0.05em'
               }}>
-                AI HUB
+                {!isDemoMode && isAuthenticated ? 'PERSONAL' : 'SIMULATOR'}
               </span>
             </div>
             <p style={{ 
@@ -89,45 +107,191 @@ export const Header = () => {
           </div>
         </div>
 
-        {/* Right: Farmer Selector, Backend indicator & Language Switcher */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+        {/* Right: Farmer Identity, Auth Controls, Backend indicator & Language Switcher */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
           
-          {/* Multi-Farmer Selector Dropdown */}
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            background: 'rgba(255, 255, 255, 0.18)',
-            borderRadius: '999px',
-            padding: '0.25rem 0.65rem',
-            border: '1px solid rgba(255, 255, 255, 0.35)',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
-          }}>
-            <UserCheck size={15} style={{ marginRight: '0.35rem', color: '#86efac' }} />
-            <select
-              value={farmerId}
-              onChange={(e) => switchFarmer(e.target.value)}
-              aria-label="Select Demo Farmer Profile"
-              style={{
-                background: 'transparent',
-                color: 'white',
-                border: 'none',
-                fontWeight: 700,
-                fontSize: '0.82rem',
-                cursor: 'pointer',
-                outline: 'none'
-              }}
-            >
-              {DEMO_FARMERS.map((f) => (
-                <option 
-                  key={f.id} 
-                  value={f.id} 
-                  style={{ color: '#0f172a', background: '#ffffff', fontWeight: 600 }}
+          {/* Identity & Mode Badge / Selector */}
+          {!isDemoMode && isAuthenticated ? (
+            /* Logged-in Registered Farmer Badge */
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              background: 'rgba(34, 197, 94, 0.25)',
+              border: '1px solid #4ade80',
+              borderRadius: '999px',
+              padding: '0.25rem 0.75rem',
+              color: 'white',
+              fontSize: '0.82rem',
+              fontWeight: 700
+            }}>
+              <ShieldCheck size={16} color="#86efac" />
+              <span>{farmer?.name || user?.name}</span>
+              <span style={{
+                background: '#15803d',
+                color: '#dcfce7',
+                fontSize: '0.68rem',
+                padding: '0.1rem 0.4rem',
+                borderRadius: '999px',
+                fontWeight: 800
+              }}>
+                {farmer?.district || 'My Farm'}
+              </span>
+            </div>
+          ) : (
+            /* Demo Mode: Dropdown Selector for 4 Demo Profiles */
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              background: 'rgba(255, 255, 255, 0.18)',
+              borderRadius: '999px',
+              padding: '0.25rem 0.65rem',
+              border: '1px solid rgba(255, 255, 255, 0.35)',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+            }}>
+              <UserCheck size={15} style={{ marginRight: '0.35rem', color: '#86efac' }} />
+              <select
+                value={demoFarmerId}
+                onChange={(e) => switchFarmer(e.target.value)}
+                aria-label="Select Demo Farmer Profile"
+                style={{
+                  background: 'transparent',
+                  color: 'white',
+                  border: 'none',
+                  fontWeight: 700,
+                  fontSize: '0.82rem',
+                  cursor: 'pointer',
+                  outline: 'none'
+                }}
+              >
+                {DEMO_FARMERS.map((f) => (
+                  <option 
+                    key={f.id} 
+                    value={f.id} 
+                    style={{ color: '#0f172a', background: '#ffffff', fontWeight: 600 }}
+                  >
+                    {f.name} ({f.location} - {f.land})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Mode Switchers & Auth Buttons */}
+          {!isDemoMode && isAuthenticated ? (
+            /* Registered user controls */
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <button
+                onClick={() => switchToDemo()}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.15)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  color: 'white',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  padding: '0.3rem 0.65rem',
+                  borderRadius: '999px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.3rem',
+                  cursor: 'pointer'
+                }}
+                title="Switch to Demo Simulator Mode"
+              >
+                <Sliders size={13} color="#fde047" />
+                <span>{t.demoMode || 'Demo Mode'}</span>
+              </button>
+
+              <button
+                onClick={() => logout()}
+                style={{
+                  background: 'rgba(239, 68, 68, 0.25)',
+                  border: '1px solid #f87171',
+                  color: 'white',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  padding: '0.3rem 0.65rem',
+                  borderRadius: '999px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.3rem',
+                  cursor: 'pointer'
+                }}
+                title="Log Out"
+              >
+                <LogOut size={13} />
+                <span>{t.logout || 'Logout'}</span>
+              </button>
+            </div>
+          ) : (
+            /* Demo mode controls: Login / Register */
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              {isAuthenticated ? (
+                <button
+                  onClick={() => switchToRegistered()}
+                  style={{
+                    background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
+                    border: '1px solid #86efac',
+                    color: 'white',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    padding: '0.35rem 0.75rem',
+                    borderRadius: '999px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    cursor: 'pointer'
+                  }}
                 >
-                  {f.name} ({f.location} - {f.land})
-                </option>
-              ))}
-            </select>
-          </div>
+                  <ShieldCheck size={14} color="#86efac" />
+                  <span>{t.myFarmProfile || 'My Farm Profile'}</span>
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={() => openLogin()}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.2)',
+                      border: '1px solid rgba(255, 255, 255, 0.4)',
+                      color: 'white',
+                      fontSize: '0.78rem',
+                      fontWeight: 700,
+                      padding: '0.35rem 0.75rem',
+                      borderRadius: '999px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <LogIn size={13} />
+                    <span>{t.login || 'Log In'}</span>
+                  </button>
+
+                  <button
+                    onClick={() => openRegister()}
+                    style={{
+                      background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                      border: '1px solid #86efac',
+                      color: 'white',
+                      fontSize: '0.78rem',
+                      fontWeight: 700,
+                      padding: '0.35rem 0.75rem',
+                      borderRadius: '999px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      cursor: 'pointer',
+                      boxShadow: '0 2px 6px rgba(22, 163, 74, 0.3)'
+                    }}
+                  >
+                    <UserPlus size={13} />
+                    <span>{t.register || 'Register'}</span>
+                  </button>
+                </>
+              )}
+            </div>
+          )}
 
           {/* Backend Connection Indicator */}
           <div 

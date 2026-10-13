@@ -114,7 +114,9 @@ class FarmerService:
             "irrigation_type": farmer.irrigation_type,
             "is_tax_payer": farmer.is_tax_payer,
             "age": farmer.age,
-            "pm_kisan_registered": farmer.pm_kisan_registered
+            "pm_kisan_registered": farmer.pm_kisan_registered,
+            "preferred_language": getattr(farmer, "preferred_language", "en") or "en",
+            "is_demo": getattr(farmer, "is_demo", False) if getattr(farmer, "is_demo", False) is not None else False
         }
 
     def _diary_to_dict(self, entry: DiaryEntry) -> Dict[str, Any]:
@@ -232,7 +234,9 @@ class FarmerService:
                     irrigation_type=template["irrigation_type"],
                     is_tax_payer=template["is_tax_payer"],
                     age=template["age"],
-                    pm_kisan_registered=template["pm_kisan_registered"]
+                    pm_kisan_registered=template["pm_kisan_registered"],
+                    preferred_language=template.get("preferred_language", "en"),
+                    is_demo=True
                 )
                 db.add(farmer)
                 db.commit()
@@ -241,6 +245,76 @@ class FarmerService:
             return self._farmer_to_dict(farmer)
         finally:
             db.close()
+
+    def update_farmer_profile(self, farmer_id: str, updates: Dict[str, Any]) -> Dict[str, Any]:
+        db = self._get_db()
+        try:
+            farmer = db.query(Farmer).filter(Farmer.id == farmer_id).first()
+            if not farmer:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Farmer profile with ID '{farmer_id}' not found."
+                )
+
+            if "name" in updates and updates["name"]:
+                farmer.name = updates["name"]
+            if "state" in updates and updates["state"]:
+                farmer.state = updates["state"]
+            if "district" in updates and updates["district"]:
+                farmer.district = updates["district"]
+            if "taluka" in updates:
+                farmer.taluka = updates["taluka"]
+            if "village" in updates:
+                farmer.village = updates["village"]
+            if "land_size_acres" in updates and updates["land_size_acres"] is not None:
+                acres = float(updates["land_size_acres"])
+                farmer.land_size_acres = acres
+                if acres <= 2.5:
+                    farmer.farmer_category = "marginal"
+                elif acres <= 5.0:
+                    farmer.farmer_category = "small"
+                elif acres <= 10.0:
+                    farmer.farmer_category = "medium"
+                else:
+                    farmer.farmer_category = "large"
+            if "crops" in updates and updates["crops"] is not None:
+                farmer.crops = json.dumps(updates["crops"])
+            if "soil_type" in updates:
+                farmer.soil_type = updates["soil_type"]
+            if "owns_land" in updates and updates["owns_land"] is not None:
+                farmer.owns_land = updates["owns_land"]
+            if "has_irrigation" in updates and updates["has_irrigation"] is not None:
+                farmer.has_irrigation = updates["has_irrigation"]
+            if "irrigation_type" in updates:
+                farmer.irrigation_type = updates["irrigation_type"]
+            if "preferred_language" in updates and updates["preferred_language"]:
+                farmer.preferred_language = updates["preferred_language"]
+            if "age" in updates and updates["age"] is not None:
+                farmer.age = updates["age"]
+
+            if farmer.user:
+                if "name" in updates and updates["name"]:
+                    farmer.user.name = updates["name"]
+                if "preferred_language" in updates and updates["preferred_language"]:
+                    farmer.user.preferred_language = updates["preferred_language"]
+
+            db.commit()
+            db.refresh(farmer)
+            logger.info(f"Updated profile for farmer {farmer_id}")
+            return self._farmer_to_dict(farmer)
+        except HTTPException:
+            db.rollback()
+            raise
+        except Exception as e:
+            db.rollback()
+            logger.error(f"Error updating profile for farmer {farmer_id}: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to update profile: {str(e)}"
+            )
+        finally:
+            db.close()
+
 
     def clean_test_entries(self) -> int:
         """Removes test entries created by Playwright starting with PLAYWRIGHT_AUDIT_TEST_ and resets test acknowledgements."""

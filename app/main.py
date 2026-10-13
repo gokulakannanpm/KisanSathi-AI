@@ -3,7 +3,7 @@ load_dotenv(override=True)
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import ai, farmer, mandi, recommendation, schemes, weather
+from app.routers import ai, auth, farmer, mandi, recommendation, schemes, weather
 
 app = FastAPI(
     title="KisanSathi AI - Agricultural Intelligence & Government Schemes Platform",
@@ -21,6 +21,7 @@ app.add_middleware(
 )
 
 # Register Routers
+app.include_router(auth.router)
 app.include_router(schemes.router)
 app.include_router(farmer.router)
 app.include_router(weather.router)

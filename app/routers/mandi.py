@@ -1,6 +1,6 @@
 import logging
 from typing import Any, Dict, List, Optional
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Response
 from app.services.mandi_service import mandi_service
 
 logger = logging.getLogger(__name__)
@@ -11,12 +11,14 @@ router = APIRouter(
 )
 
 
-@router.get(
+@router.api_route(
     "",
+    methods=["GET", "HEAD"],
     summary="Get live or fallback APMC mandi market prices"
 )
-@router.get(
+@router.api_route(
     "/price",
+    methods=["GET", "HEAD"],
     summary="Get live or fallback APMC mandi market prices"
 )
 def get_prices(
@@ -36,4 +38,34 @@ def get_prices(
         market_filter=market,
         source_filter=source,
         farmer_id=farmer_id
+    )
+
+
+@router.api_route(
+    "/koyambedu-benchmark",
+    methods=["GET", "HEAD"],
+    summary="Get official Koyambedu Wholesale Market Benchmark prices (Restricted to Thanjavur profile only)"
+)
+def get_koyambedu_benchmark(
+    farmer_id: Optional[str] = Query("demo_farmer_03", description="Farmer ID (Must be Thanjavur, Tamil Nadu profile)"),
+    commodity: Optional[str] = Query(None, description="Optional commodity filter"),
+    force_refresh: bool = Query(False, description="Request manual rate-limited refresh")
+):
+    return mandi_service.get_koyambedu_benchmark(
+        farmer_id=farmer_id,
+        commodity=commodity,
+        force_refresh=force_refresh
+    )
+
+
+@router.post(
+    "/koyambedu-benchmark/refresh",
+    summary="Trigger rate-limited refresh of Koyambedu Wholesale Market Benchmark (Thanjavur only)"
+)
+def refresh_koyambedu_benchmark(
+    farmer_id: Optional[str] = Query("demo_farmer_03", description="Farmer ID (Must be Thanjavur, Tamil Nadu profile)")
+):
+    return mandi_service.get_koyambedu_benchmark(
+        farmer_id=farmer_id,
+        force_refresh=True
     )

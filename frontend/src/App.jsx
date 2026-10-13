@@ -15,6 +15,8 @@ import { AddDiaryModal } from './components/Diary/AddDiaryModal';
 import { FarmerProfile } from './components/Profile/FarmerProfile';
 import { AIExplainerModal } from './components/AI/AIExplainerModal';
 import { CropPlannerModal } from './components/Dashboard/CropPlannerModal';
+import { LoginModal } from './components/Auth/LoginModal';
+import { RegisterModal } from './components/Auth/RegisterModal';
 import { Loader2 } from 'lucide-react';
 import './App.css';
 
@@ -97,6 +99,8 @@ export function App() {
       />
       <AIExplainerModal />
       <CropPlannerModal />
+      <LoginModal />
+      <RegisterModal />
 
     </div>
   );

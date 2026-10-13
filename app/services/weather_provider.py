@@ -139,19 +139,36 @@ STATE_COORDINATES: Dict[str, Tuple[float, float]] = {
 }
 
 
-def WMO_CODE_TO_CONDITION(code: int) -> Tuple[str, bool]:
-    """Maps WMO Weather Code to accurate condition description and spraying_safe flag."""
-    if code in (0, 1):
-        return ("Clear & Sunny", True)
-    elif code in (2, 3):
+def WMO_CODE_TO_CONDITION(code: Optional[int], is_day: Optional[int] = 1) -> Tuple[str, bool]:
+    """
+    Maps WMO Weather Code to accurate condition description and spraying_safe flag.
+    Accurately accounts for is_day (day vs night) and specific WMO meteorological standards.
+    Never defaults to 'Clear & Sunny' when condition is unknown or unavailable.
+    """
+    if code is None:
+        return ("Unknown Condition", False)
+
+    is_night = (is_day == 0)
+
+    if code == 0:
+        return ("Clear Sky" if is_night else "Clear & Sunny", True)
+    elif code == 1:
+        return ("Mainly Clear", True)
+    elif code == 2:
         return ("Partly Cloudy", True)
+    elif code == 3:
+        return ("Overcast", False)
     elif code in (45, 48):
         return ("Foggy / Hazy", True)
-    elif code in (51, 53, 55):
+    elif code == 51:
         return ("Light Drizzle", False)
+    elif code in (53, 55):
+        return ("Drizzle", False)
     elif code in (56, 57):
         return ("Freezing Drizzle", False)
-    elif code in (61, 63, 65):
+    elif code == 61:
+        return ("Light Rain", False)
+    elif code in (63, 65):
         return ("Rain Showers", False)
     elif code in (66, 67):
         return ("Freezing Rain", False)
@@ -161,7 +178,8 @@ def WMO_CODE_TO_CONDITION(code: int) -> Tuple[str, bool]:
         return ("Heavy Rain Showers", False)
     elif code in (95, 96, 99):
         return ("Thunderstorm Warning", False)
-    return ("Cloudy / Overcast", False)
+
+    return ("Unknown Condition", False)
 
 
 class WeatherProvider:
@@ -361,7 +379,14 @@ class WeatherProvider:
                 d_label = f"{day_target.strftime('%A')} ({day_target.strftime('%d %b')})"
 
             prob_i = max(5, rain_prob - (i * 5))
-            c_text = condition if i == 1 else ("Partly Cloudy" if i == 2 else "Clear & Sunny")
+            if prob_i >= 60:
+                c_text = "Rain Showers"
+            elif prob_i >= 35:
+                c_text = "Cloudy / Overcast"
+            elif prob_i >= 20:
+                c_text = "Partly Cloudy"
+            else:
+                c_text = condition if i == 1 else ("Mainly Clear" if condition != "Sunny & Dry" else "Sunny & Dry")
             forecast_3day.append({
                 "day": d_label,
                 "date": day_target.strftime("%Y-%m-%d"),
@@ -405,12 +430,12 @@ class WeatherProvider:
         longitude: float,
         resolved_label: str
     ) -> Optional[Dict[str, Any]]:
-        """Fetches live weather from Open-Meteo with accurate parameters and UTC timestamps."""
+        """Fetches live weather from Open-Meteo with accurate parameters, day/night awareness, and UTC timestamps."""
         try:
             url = (
                 f"https://api.open-meteo.com/v1/forecast?"
                 f"latitude={latitude}&longitude={longitude}&"
-                f"current=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,weather_code&"
+                f"current=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,weather_code,is_day&"
                 f"daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum&"
                 f"timezone=auto"
             )
@@ -425,9 +450,11 @@ class WeatherProvider:
                 humidity = int(current.get("relative_humidity_2m", 65))
                 pressure = int(current.get("surface_pressure", 1010))
                 wind = float(current.get("wind_speed_10m", 10.0))
-                wmo_code = int(current.get("weather_code", 0))
+                raw_wmo = current.get("weather_code")
+                wmo_code = int(raw_wmo) if raw_wmo is not None else None
+                is_day_val = int(current.get("is_day", 1)) if current.get("is_day") is not None else 1
 
-                condition, _ = WMO_CODE_TO_CONDITION(wmo_code)
+                condition, _ = WMO_CODE_TO_CONDITION(wmo_code, is_day_val)
 
                 daily_prob = daily.get("precipitation_probability_max", [])
                 daily_sum = daily.get("precipitation_sum", [])
@@ -454,8 +481,9 @@ class WeatherProvider:
                     date_str = daily_times[idx] if idx < len(daily_times) else day_target.strftime("%Y-%m-%d")
                     prob_val = int(daily_prob[idx]) if idx < len(daily_prob) and daily_prob[idx] is not None else 10
                     p_sum_val = float(daily_sum[idx]) if idx < len(daily_sum) and daily_sum[idx] is not None else 0.0
-                    code_val = int(codes_arr[idx]) if idx < len(codes_arr) and codes_arr[idx] is not None else 0
-                    c_text, s_safe = WMO_CODE_TO_CONDITION(code_val)
+                    raw_code_val = codes_arr[idx] if idx < len(codes_arr) else None
+                    code_val = int(raw_code_val) if raw_code_val is not None else None
+                    c_text, s_safe = WMO_CODE_TO_CONDITION(code_val, 1)
                     t_max = int(t_max_arr[idx]) if idx < len(t_max_arr) and t_max_arr[idx] is not None else int(temp + 2)
                     t_min = int(t_min_arr[idx]) if idx < len(t_min_arr) and t_min_arr[idx] is not None else int(temp - 4)
 

@@ -171,26 +171,49 @@ export const SchemesView = () => {
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                borderLeft: `5px solid ${scheme.eligible ? '#22c55e' : '#94a3b8'}`
+                borderLeft: `5px solid ${
+                  scheme.eligibility_status === 'eligible' ? '#22c55e' :
+                  scheme.eligibility_status === 'potentially_eligible' ? '#f59e0b' :
+                  scheme.eligibility_status === 'insufficient_information' ? '#0284c7' : '#94a3b8'
+                }`
               }}
               onClick={() => setSelectedScheme(scheme)}
             >
               <div>
                 {/* Eligibility Badge & Audio Button */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', gap: '0.5rem' }}>
-                  <span className={`badge ${scheme.eligible ? 'badge-eligible' : 'badge-ineligible'}`}>
-                    {scheme.eligible ? (
-                      <>
-                        <CheckCircle2 size={13} />
-                        <span>{t.eligible || "Eligible"}</span>
-                      </>
-                    ) : (
-                      <>
-                        <XCircle size={13} />
-                        <span>{t.notEligible || "Not Eligible"}</span>
-                      </>
-                    )}
-                  </span>
+                  {(() => {
+                    const status = scheme.eligibility_status || (scheme.eligible ? 'eligible' : 'ineligible');
+                    if (status === 'eligible') {
+                      return (
+                        <span className="badge badge-eligible">
+                          <CheckCircle2 size={13} />
+                          <span>{t.eligible || "Eligible"}</span>
+                        </span>
+                      );
+                    } else if (status === 'potentially_eligible') {
+                      return (
+                        <span className="badge" style={{ background: '#fef3c7', color: '#b45309', border: '1px solid #fcd34d' }}>
+                          <Info size={13} />
+                          <span>{t.potentiallyEligible || "Potentially Eligible"}</span>
+                        </span>
+                      );
+                    } else if (status === 'insufficient_information') {
+                      return (
+                        <span className="badge" style={{ background: '#e0f2fe', color: '#0369a1', border: '1px solid #7dd3fc' }}>
+                          <AlertTriangle size={13} />
+                          <span>{t.infoNeeded || "Details Needed"}</span>
+                        </span>
+                      );
+                    } else {
+                      return (
+                        <span className="badge badge-ineligible">
+                          <XCircle size={13} />
+                          <span>{t.notEligible || "Not Eligible"}</span>
+                        </span>
+                      );
+                    }
+                  })()}
 
                   <AudioNarrationButton scheme={scheme} />
                 </div>

@@ -3,6 +3,8 @@ import {
   mockFarmerProfiles,
   mockDiaryEntries, 
   mockWeather, 
+  mockWeatherByProfile,
+  getProfileWeatherFallback,
   mockMandiPrices, 
   mockHeroRecommendation, 
   mockSchemes 
@@ -10,6 +12,11 @@ import {
 import { API_BASE, DEFAULT_FARMER_ID } from '../config/constants';
 
 let isBackendAvailable = true;
+
+const getAuthHeaders = () => {
+  const token = sessionStorage.getItem('kisansathi_token');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+};
 
 const handleFetchError = (error, fallback) => {
   console.warn(`[KisanSathi API] Backend call failed (${error.message}). Gracefully using local farm memory fallback.`);
@@ -20,12 +27,85 @@ const handleFetchError = (error, fallback) => {
 export const apiService = {
   getBackendStatus: () => isBackendAvailable,
 
+  // 0. Authentication & Session Methods
+  registerFarmer: async (data) => {
+    const res = await fetch(`${API_BASE}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.detail || `Registration failed (HTTP ${res.status})`);
+    }
+    const result = await res.json();
+    isBackendAvailable = true;
+    return result;
+  },
+
+  loginFarmer: async (phone, password) => {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, password })
+    });
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.detail || `Login failed (HTTP ${res.status})`);
+    }
+    const result = await res.json();
+    isBackendAvailable = true;
+    return result;
+  },
+
+  getCurrentUser: async () => {
+    const headers = getAuthHeaders();
+    if (!headers.Authorization) return null;
+    try {
+      const res = await fetch(`${API_BASE}/auth/me`, { headers });
+      if (!res.ok) return null;
+      const data = await res.json();
+      isBackendAvailable = true;
+      return data;
+    } catch {
+      return null;
+    }
+  },
+
+  logoutFarmer: async () => {
+    sessionStorage.removeItem('kisansathi_token');
+    try {
+      await fetch(`${API_BASE}/auth/logout`, { method: 'POST' });
+    } catch {
+      // Ignored
+    }
+  },
+
+  updateFarmerProfile: async (updates) => {
+    const res = await fetch(`${API_BASE}/farmer/profile`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify(updates)
+    });
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.detail || `Update failed (HTTP ${res.status})`);
+    }
+    const data = await res.json();
+    isBackendAvailable = true;
+    return data;
+  },
+
   // 1. Farmer Profile (Never silently substitute another farmer's profile)
   getFarmerProfile: async (farmerId = DEFAULT_FARMER_ID) => {
     try {
-      const res = await fetch(`${API_BASE}/farmer/${farmerId}/profile`);
-      if (res.status === 404) {
-        // Honest profile not found state
+      const res = await fetch(`${API_BASE}/farmer/${farmerId}/profile`, {
+        headers: getAuthHeaders()
+      });
+      if (res.status === 404 || res.status === 401 || res.status === 403) {
         return null;
       }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -48,7 +128,9 @@ export const apiService = {
   // 2. Farmer Diary
   getDiaryEntries: async (farmerId = DEFAULT_FARMER_ID) => {
     try {
-      const res = await fetch(`${API_BASE}/farmer/${farmerId}/diary`);
+      const res = await fetch(`${API_BASE}/farmer/${farmerId}/diary`, {
+        headers: getAuthHeaders()
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       isBackendAvailable = true;
@@ -62,7 +144,10 @@ export const apiService = {
     try {
       const res = await fetch(`${API_BASE}/farmer/${farmerId}/diary`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
+        },
         body: JSON.stringify(entry)
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -85,7 +170,7 @@ export const apiService = {
       isBackendAvailable = true;
       return data;
     } catch (e) {
-      return handleFetchError(e, mockWeather);
+      return handleFetchError(e, getProfileWeatherFallback(farmerId));
     }
   },
 
@@ -100,6 +185,38 @@ export const apiService = {
       return Array.isArray(data) ? data : [data];
     } catch (e) {
       return handleFetchError(e, mockMandiPrices);
+    }
+  },
+
+  // 4b. Official Koyambedu Wholesale Market Benchmark (Scoped to Thanjavur only)
+  getKoyambeduBenchmark: async (farmerId = 'demo_farmer_03', commodity = null, forceRefresh = false) => {
+    try {
+      const params = new URLSearchParams({ farmer_id: farmerId });
+      if (commodity) params.append('commodity', commodity);
+      if (forceRefresh) params.append('force_refresh', 'true');
+      const res = await fetch(`${API_BASE}/mandi/koyambedu-benchmark?${params.toString()}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      isBackendAvailable = true;
+      return data;
+    } catch (e) {
+      console.warn('[KisanSathi API] Koyambedu benchmark fetch failed:', e);
+      return { eligible: farmerId === 'demo_farmer_03', data: [], data_status: 'manual_reference' };
+    }
+  },
+
+  refreshKoyambeduBenchmark: async (farmerId = 'demo_farmer_03') => {
+    try {
+      const res = await fetch(`${API_BASE}/mandi/koyambedu-benchmark/refresh?farmer_id=${farmerId}`, {
+        method: 'POST'
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      isBackendAvailable = true;
+      return data;
+    } catch (e) {
+      console.warn('[KisanSathi API] Koyambedu manual refresh failed:', e);
+      return null;
     }
   },
 

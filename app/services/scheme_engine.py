@@ -204,13 +204,13 @@ class SchemeEngine:
                 return tpl
 
         rules = scheme.get("eligibility_rules", {})
-        if not farmer_profile:
-            # If no farmer profile provided, return open eligibility overview
+        if not farmer_profile or not any(v is not None and v != "" and v != [] for v in farmer_profile.values()):
             return {
-                "eligible": True,
-                "reasons": [get_msg("eligible_all_criteria_met") or "Open to all qualifying farmers."],
+                "eligible": False,
+                "eligibility_status": "insufficient_information",
+                "reasons": ["Insufficient profile information. Please configure profile details to confirm eligibility."],
                 "criteria_evaluation": {
-                    "profile_status": "No farmer context provided (General Criteria Shown)"
+                    "profile_status": "INSUFFICIENT_INFO: No active farmer profile context provided"
                 }
             }
 
@@ -223,6 +223,19 @@ class SchemeEngine:
         has_irrigation = norm.get("has_irrigation", True)
         is_tax_payer = norm.get("is_tax_payer", False)
         farmer_age = norm.get("age")
+
+        # Track any required criteria where the profile completely lacks data
+        missing_fields: List[str] = []
+        if (rules.get("max_land_acres") is not None or rules.get("min_land_acres") is not None) and land_acres is None:
+            missing_fields.append("land size")
+        if (rules.get("min_age") is not None or rules.get("max_age") is not None) and farmer_age is None:
+            missing_fields.append("age")
+        state_rule = rules.get("state_restricted")
+        if state_rule and not farmer_state:
+            missing_fields.append("state")
+        allowed_crops = [str(c).lower() for c in rules.get("crop_types", ["any"])]
+        if "any" not in allowed_crops and not farmer_crops:
+            missing_fields.append("crop types")
 
         is_eligible = True
         reasons: List[str] = []
@@ -334,12 +347,26 @@ class SchemeEngine:
             elif farmer_category:
                 criteria_eval["category_criteria"] = f"PASSED: Category '{farmer_category}' eligible"
 
+        # If no explicit rule failure, but required criteria information was missing from profile
+        if is_eligible and missing_fields:
+            return {
+                "eligible": False,
+                "eligibility_status": "insufficient_information",
+                "reasons": [f"Insufficient profile information. Please provide {', '.join(missing_fields)} to confirm eligibility."],
+                "criteria_evaluation": criteria_eval
+            }
+
         # If eligible and no negative reasons logged, add general success statement
         if is_eligible and not reasons:
             reasons.append(get_msg("eligible_all_criteria_met"))
 
+        status = "eligible" if is_eligible else "ineligible"
+        if is_eligible and (req_irrigation or rules.get("state_restricted")):
+            status = "potentially_eligible"
+
         return {
             "eligible": is_eligible,
+            "eligibility_status": status,
             "reasons": reasons,
             "criteria_evaluation": criteria_eval
         }
@@ -384,6 +411,7 @@ class SchemeEngine:
             "official_source": scheme.get("official_source", ""),
             "official_application_link": scheme.get("official_application_link", ""),
             "eligible": eval_result["eligible"],
+            "eligibility_status": eval_result.get("eligibility_status", "eligible"),
             "eligibility_reasons": eval_result["reasons"],
             "criteria_evaluation": eval_result["criteria_evaluation"],
             "language": lang

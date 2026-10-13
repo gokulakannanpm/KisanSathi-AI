@@ -36,6 +36,7 @@ class SchemeResponse(BaseModel):
     official_source: str = Field(..., description="Official government scheme information URL")
     official_application_link: str = Field(..., description="Direct government portal application URL")
     eligible: bool = Field(..., description="Computed deterministic eligibility flag for the farmer")
+    eligibility_status: Optional[str] = Field("eligible", description="Detailed status: eligible, potentially_eligible, ineligible, insufficient_information")
     eligibility_reasons: List[str] = Field(default_factory=list, description="Plain-language reasons explaining the eligibility decision")
     criteria_evaluation: Optional[Dict[str, str]] = Field(default=None, description="Detailed criteria breakdown")
     language: str = Field("en", description="Language code of the response")
@@ -45,6 +46,7 @@ class EligibilityResponse(BaseModel):
     scheme_id: str
     scheme_name: str
     eligible: bool
+    eligibility_status: Optional[str] = Field("eligible", description="Detailed eligibility status")
     reasons: List[str]
     criteria_evaluation: Dict[str, str]
 
@@ -253,6 +255,7 @@ def check_scheme_eligibility(
         scheme_id=scheme_id,
         scheme_name=localized["name"],
         eligible=eval_result["eligible"],
+        eligibility_status=eval_result.get("eligibility_status", "eligible"),
         reasons=eval_result["reasons"],
         criteria_evaluation=eval_result["criteria_evaluation"]
     )

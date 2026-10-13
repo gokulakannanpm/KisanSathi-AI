@@ -15,6 +15,7 @@ import { useFarmer } from '../../context/FarmerContext';
 import { apiService } from '../../services/api';
 import { translations } from '../../services/i18n';
 import { matchVoiceCommand } from '../../services/voiceNavigation';
+import MarkdownRenderer from '../Common/MarkdownRenderer';
 
 export const AIExplainerModal = () => {
   const {
@@ -519,7 +520,7 @@ export const AIExplainerModal = () => {
                 fontSize: '0.88rem',
                 lineHeight: 1.55,
                 border: msg.sender === 'user' ? 'none' : '1px solid var(--border-medium)',
-                whiteSpace: 'pre-line',
+                whiteSpace: msg.sender === 'user' ? 'pre-line' : 'normal',
                 position: 'relative'
               }}>
                 {/* TRANSLATION RESPONSE DISPLAY: Distinct Original Transcript & Translated Result */}
@@ -545,7 +546,7 @@ export const AIExplainerModal = () => {
                           {activeT.translatedResultLabel || "Translated Output:"}
                         </div>
                         <div style={{ color: '#0f172a', fontWeight: 600, fontSize: '0.95rem' }}>
-                          {msg.translated_text}
+                          <MarkdownRenderer content={msg.translated_text} />
                         </div>
                       </div>
                     ) : (
@@ -556,7 +557,11 @@ export const AIExplainerModal = () => {
                   </div>
                 ) : (
                   <div>
-                    {msg.text}
+                    {msg.sender === 'user' ? (
+                      msg.text
+                    ) : (
+                      <MarkdownRenderer content={msg.text} />
+                    )}
 
                     {msg.action_steps && msg.action_steps.length > 0 && (
                       <div style={{ marginTop: '0.75rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(0,0,0,0.1)' }}>

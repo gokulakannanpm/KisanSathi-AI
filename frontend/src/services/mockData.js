@@ -129,27 +129,106 @@ export const mockDiaryEntries = [
   }
 ];
 
-export const mockWeather = {
-  temperature: 28.4,
-  condition: "Heavy Rain & Thunderstorms",
-  rain_probability: 88,
-  humidity: 92,
-  wind_speed: 22.5,
-  pressure: 1008,
-  source: "fallback",
-  source_name: "Local Agrometeorological Baseline Cache",
-  fetched_at: new Date().toISOString(),
-  forecast_3day: [
-    { day: "Tomorrow", condition: "Heavy Rain (45-60mm)", rain_prob: 88, temp_max: 27, temp_min: 22, spraying_safe: false },
-    { day: "Day 2", condition: "Scattered Showers", rain_prob: 60, temp_max: 29, temp_min: 23, spraying_safe: false },
-    { day: "Day 3", condition: "Partly Cloudy / Clear", rain_prob: 15, temp_max: 32, temp_min: 24, spraying_safe: true }
-  ],
-  advisory: {
-    spraying_index: "UNSAFE (Rain Washout Risk >95%)",
-    irrigation_need: "ZERO (Soil Moisture Saturated)",
-    drainage_advisory: "Ensure drainage channels in low-lying cotton plots are clear to prevent waterlogging."
+export const mockWeatherByProfile = {
+  demo_farmer_01: {
+    temperature: 28.5,
+    condition: "Partly Cloudy",
+    rain_probability: 25,
+    humidity: 70,
+    wind_speed: 12.0,
+    pressure: 1010,
+    source: "fallback",
+    source_name: "Nagpur Regional Agrometeorological Baseline",
+    fallback_reason: "Offline baseline mode",
+    resolved_location: "Nagpur, Maharashtra",
+    fetched_at: new Date().toISOString(),
+    forecast_3day: [
+      { day: "Tomorrow", condition: "Partly Cloudy", rain_prob: 20, temp_max: 30, temp_min: 22, spraying_safe: true },
+      { day: "Day 2", condition: "Partly Cloudy", rain_prob: 15, temp_max: 31, temp_min: 23, spraying_safe: true },
+      { day: "Day 3", condition: "Mainly Clear", rain_prob: 10, temp_max: 32, temp_min: 24, spraying_safe: true }
+    ],
+    advisory: {
+      spraying_index: "SAFE (Dry Atmospheric Window)",
+      irrigation_need: "NORMAL (Schedule per crop growth stage)",
+      drainage_advisory: "Keep field drainage channels clear of weeds and silt."
+    }
+  },
+  demo_farmer_02: {
+    temperature: 32.5,
+    condition: "Sunny & Dry",
+    rain_probability: 15,
+    humidity: 58,
+    wind_speed: 11.0,
+    pressure: 1012,
+    source: "fallback",
+    source_name: "Rajkot Regional Agrometeorological Baseline",
+    fallback_reason: "Offline baseline mode",
+    resolved_location: "Rajkot, Gujarat",
+    fetched_at: new Date().toISOString(),
+    forecast_3day: [
+      { day: "Tomorrow", condition: "Sunny & Dry", rain_prob: 10, temp_max: 34, temp_min: 24, spraying_safe: true },
+      { day: "Day 2", condition: "Mainly Clear", rain_prob: 10, temp_max: 35, temp_min: 25, spraying_safe: true },
+      { day: "Day 3", condition: "Mainly Clear", rain_prob: 5, temp_max: 35, temp_min: 25, spraying_safe: true }
+    ],
+    advisory: {
+      spraying_index: "SAFE (Dry Atmospheric Window)",
+      irrigation_need: "NORMAL (Morning / Evening Cycle)",
+      drainage_advisory: "Monitor soil moisture retention in sandy loam plots."
+    }
+  },
+  demo_farmer_03: {
+    temperature: 31.2,
+    condition: "Warm & Humid",
+    rain_probability: 30,
+    humidity: 78,
+    wind_speed: 14.0,
+    pressure: 1009,
+    source: "fallback",
+    source_name: "Cauvery Delta Agrometeorological Baseline",
+    fallback_reason: "Offline baseline mode",
+    resolved_location: "Thanjavur, Tamil Nadu",
+    fetched_at: new Date().toISOString(),
+    forecast_3day: [
+      { day: "Tomorrow", condition: "Warm & Humid", rain_prob: 25, temp_max: 32, temp_min: 25, spraying_safe: true },
+      { day: "Day 2", condition: "Partly Cloudy", rain_prob: 20, temp_max: 33, temp_min: 26, spraying_safe: true },
+      { day: "Day 3", condition: "Mainly Clear", rain_prob: 15, temp_max: 33, temp_min: 25, spraying_safe: true }
+    ],
+    advisory: {
+      spraying_index: "SAFE (Dry Window)",
+      irrigation_need: "NORMAL (Cauvery Canal / Borewell Cycle)",
+      drainage_advisory: "Inspect bund drainage outlets in paddy fields."
+    }
+  },
+  demo_farmer_04: {
+    temperature: 29.0,
+    condition: "Mainly Clear",
+    rain_probability: 10,
+    humidity: 55,
+    wind_speed: 9.0,
+    pressure: 1013,
+    source: "fallback",
+    source_name: "Malwa Agrometeorological Baseline",
+    fallback_reason: "Offline baseline mode",
+    resolved_location: "Bhatinda, Punjab",
+    fetched_at: new Date().toISOString(),
+    forecast_3day: [
+      { day: "Tomorrow", condition: "Mainly Clear", rain_prob: 10, temp_max: 31, temp_min: 20, spraying_safe: true },
+      { day: "Day 2", condition: "Mainly Clear", rain_prob: 5, temp_max: 32, temp_min: 21, spraying_safe: true },
+      { day: "Day 3", condition: "Mainly Clear", rain_prob: 5, temp_max: 32, temp_min: 21, spraying_safe: true }
+    ],
+    advisory: {
+      spraying_index: "SAFE (Calm Wind & Clear Sky)",
+      irrigation_need: "NORMAL (Deep Tubewell Cycle)",
+      drainage_advisory: "Ensure laser-leveled furrows are clear of debris."
+    }
   }
 };
+
+export const getProfileWeatherFallback = (farmerId) => {
+  return mockWeatherByProfile[farmerId] || mockWeatherByProfile.demo_farmer_01;
+};
+
+export const mockWeather = mockWeatherByProfile.demo_farmer_01;
 
 export const mockMandiPrices = [
   {

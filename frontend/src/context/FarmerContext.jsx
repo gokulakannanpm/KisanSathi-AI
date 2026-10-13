@@ -2,11 +2,17 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { apiService } from '../services/api';
 import { translations } from '../services/i18n';
 import { DEFAULT_FARMER_ID } from '../config/constants';
+import { useAuth } from './AuthContext';
 
 const FarmerContext = createContext();
 
 export const FarmerProvider = ({ children }) => {
-  const [farmerId, setFarmerId] = useState(DEFAULT_FARMER_ID);
+  const { user, isDemoMode, isAuthenticated } = useAuth();
+  const [demoFarmerId, setDemoFarmerId] = useState(DEFAULT_FARMER_ID);
+  
+  // Effective active farmer ID: derived from auth user when registered, or demoFarmerId when in demo mode
+  const effectiveFarmerId = (!isDemoMode && user?.farmer_id) ? user.farmer_id : demoFarmerId;
+
   const [language, setLanguage] = useState('en');
   const [activeTab, setActiveTab] = useState('dashboard');
   
@@ -28,8 +34,15 @@ export const FarmerProvider = ({ children }) => {
   const [cropPlanData, setCropPlanData] = useState(null);
   const [cropPlanLoading, setCropPlanLoading] = useState(false);
 
-  // Load all initial data for a specific farmer and language
-  const loadData = async (lang = language, targetFarmerId = farmerId) => {
+  // Sync preferred language from registered user when logged in
+  useEffect(() => {
+    if (!isDemoMode && user?.preferred_language) {
+      setLanguage(user.preferred_language);
+    }
+  }, [user, isDemoMode]);
+
+  // Load all initial data for active farmer and language
+  const loadData = async (lang = language, targetFarmerId = effectiveFarmerId) => {
     setLoading(true);
     try {
       const [profileData, diaryData, weatherData, mandiData, recData, schemesData] = await Promise.all([
@@ -56,24 +69,24 @@ export const FarmerProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    loadData(language, farmerId);
-  }, [language, farmerId]);
+    loadData(language, effectiveFarmerId);
+  }, [language, effectiveFarmerId, isDemoMode]);
 
-  // Switch Active Farmer (Multi-Farmer Personalization)
+  // Switch Active Farmer (Multi-Farmer Personalization for demo mode)
   const switchFarmer = (newFarmerId) => {
-    setFarmerId(newFarmerId);
+    setDemoFarmerId(newFarmerId);
   };
 
   // Add Diary Entry
   const addDiaryEntry = async (entry) => {
-    const saved = await apiService.addDiaryEntry(farmerId, entry);
+    const saved = await apiService.addDiaryEntry(effectiveFarmerId, entry);
     setDiary(prev => [saved, ...prev]);
     return saved;
   };
 
   // Acknowledge / Postpone Recommendation Action
   const acknowledgeRecommendationAction = async (payload = {}) => {
-    const ackRes = await apiService.acknowledgeAction(farmerId, payload);
+    const ackRes = await apiService.acknowledgeAction(effectiveFarmerId, payload);
     setRecommendation(prev => ({
       ...prev,
       is_acknowledged: true,
@@ -83,12 +96,26 @@ export const FarmerProvider = ({ children }) => {
     return ackRes;
   };
 
-  // Update Farmer Profile locally (e.g. for simulator)
-  const updateFarmerProfile = (updatedFields) => {
-    setFarmer(prev => ({
-      ...prev,
-      ...updatedFields
-    }));
+  // Update Farmer Profile: persists to database for registered users, updates in-memory for demo simulator
+  const updateFarmerProfile = async (updatedFields) => {
+    if (!isDemoMode && user) {
+      try {
+        const persisted = await apiService.updateFarmerProfile(updatedFields);
+        setFarmer(persisted);
+        if (persisted.preferred_language) {
+          setLanguage(persisted.preferred_language);
+        }
+        return persisted;
+      } catch (err) {
+        console.error("Failed to update farmer profile in DB:", err);
+        throw err;
+      }
+    } else {
+      setFarmer(prev => ({
+        ...prev,
+        ...updatedFields
+      }));
+    }
   };
 
   // Open AI Explainer Modal
@@ -107,7 +134,7 @@ export const FarmerProvider = ({ children }) => {
     setIsCropPlannerOpen(true);
     setCropPlanLoading(true);
     try {
-      const data = await apiService.getCropPlan(farmerId, {
+      const data = await apiService.getCropPlan(effectiveFarmerId, {
         state: farmer?.state,
         district: farmer?.district,
         land_size_acres: farmer?.land_size_acres,
@@ -132,8 +159,11 @@ export const FarmerProvider = ({ children }) => {
 
   return (
     <FarmerContext.Provider value={{
-      farmerId,
+      farmerId: effectiveFarmerId,
+      demoFarmerId,
       switchFarmer,
+      isDemoMode,
+      isAuthenticated,
       language,
       setLanguage,
       t,
@@ -150,7 +180,7 @@ export const FarmerProvider = ({ children }) => {
       acknowledgeRecommendationAction,
       schemes,
       loading,
-      refreshData: () => loadData(language, farmerId),
+      refreshData: () => loadData(language, effectiveFarmerId),
       isBackendConnected,
       selectedScheme,
       setSelectedScheme,

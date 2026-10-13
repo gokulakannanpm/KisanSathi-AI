@@ -24,9 +24,18 @@ export const SchemeDetailModal = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
-              <span className={`badge ${selectedScheme.eligible ? 'badge-eligible' : 'badge-ineligible'}`}>
-                {selectedScheme.eligible ? t.eligible : t.notEligible}
-              </span>
+              {(() => {
+                const status = selectedScheme.eligibility_status || (selectedScheme.eligible ? 'eligible' : 'ineligible');
+                if (status === 'eligible') {
+                  return <span className="badge badge-eligible">{t.eligible || "Eligible"}</span>;
+                } else if (status === 'potentially_eligible') {
+                  return <span className="badge" style={{ background: '#fef3c7', color: '#b45309', border: '1px solid #fcd34d' }}>{t.potentiallyEligible || "Potentially Eligible"}</span>;
+                } else if (status === 'insufficient_information') {
+                  return <span className="badge" style={{ background: '#e0f2fe', color: '#0369a1', border: '1px solid #7dd3fc' }}>{t.infoNeeded || "Details Needed"}</span>;
+                } else {
+                  return <span className="badge badge-ineligible">{t.notEligible || "Not Eligible"}</span>;
+                }
+              })()}
               <AudioNarrationButton scheme={selectedScheme} />
             </div>
             <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.25 }}>
