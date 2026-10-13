@@ -5,12 +5,18 @@ from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, St
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 from pydantic import BaseModel, Field
 
-# SQLite Database Engine
-DATABASE_URL = "sqlite:///./kisansathi.db"
+import os
+
+# Database Engine (defaults to SQLite, supports PostgreSQL/cloud URLs on Render)
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./kisansathi.db")
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+connect_args = {"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
 
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False},
+    connect_args=connect_args,
     echo=False
 )
 
