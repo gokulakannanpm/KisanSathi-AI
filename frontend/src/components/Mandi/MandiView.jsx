@@ -1,23 +1,17 @@
 import React, { useState } from 'react';
-import { 
-  TrendingUp, 
-  Search, 
-  Filter, 
-  AlertCircle, 
-  Sparkles, 
-  Calendar, 
-  ShieldCheck, 
-  ArrowUpRight, 
-  Coins,
-  MapPin,
-  RefreshCw
+import {
+  TrendingUp,
+  Search,
+  AlertCircle,
+  Sparkles,
+  MapPin
 } from 'lucide-react';
 import { useFarmer } from '../../context/FarmerContext';
 import { LiveFallbackBadge } from '../Common/LiveFallbackBadge';
 import { COMMODITY_OPTIONS } from '../../config/constants';
 
 export const MandiView = () => {
-  const { mandiPrices, setMandiPrices, t, openAiExplainer, farmer } = useFarmer();
+  const { mandiPrices, t, openAiExplainer, farmer } = useFarmer();
   const [selectedCommodity, setSelectedCommodity] = useState('All');
   const [selectedSource, setSelectedSource] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -32,8 +26,8 @@ export const MandiView = () => {
 
   const filteredPrices = mandiPrices.filter((item) => {
     // 1. Commodity filter
-    const matchesCommodity = 
-      selectedCommodity === 'All' || 
+    const matchesCommodity =
+      selectedCommodity === 'All' ||
       item.commodity.toLowerCase().includes(selectedCommodity.toLowerCase());
 
     // 2. Source filter
@@ -47,8 +41,8 @@ export const MandiView = () => {
     }
 
     // 3. Search query
-    const matchesSearch = 
-      item.commodity.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const matchesSearch =
+      item.commodity.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.market.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (item.district && item.district.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (item.state && item.state.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -58,7 +52,7 @@ export const MandiView = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-      
+
       {/* View Header */}
       <div>
         <h2 className="section-title">
@@ -88,12 +82,12 @@ export const MandiView = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <MapPin size={18} color="#15803d" />
             <span>
-              <strong>Personalized Location:</strong> Mandis matching {farmer.name}'s land holding in <strong>{farmer.district}, {farmer.state}</strong>
+              <strong>{t.personalizedLocation || "Personalized Location"}:</strong> {farmer.name}'s land holding in <strong>{farmer.district}, {farmer.state}</strong>
             </span>
           </div>
           {farmer.crops && farmer.crops.length > 0 && (
             <span style={{ fontSize: '0.78rem', background: '#dcfce7', padding: '0.2rem 0.5rem', borderRadius: '999px', fontWeight: 600 }}>
-              Crops: {farmer.crops.join(', ')}
+              {t.cropsCultivated || "Crops"}: {farmer.crops.map(c => t.crops?.[c.toLowerCase()] || c).join(', ')}
             </span>
           )}
         </div>
@@ -119,10 +113,10 @@ export const MandiView = () => {
       {/* Market Source Category Tabs */}
       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
         {[
-          { id: 'all', label: 'All Market Sources' },
-          { id: 'agmarknet', label: 'APMC Wholesale Mandis' },
-          { id: 'tamil_nadu', label: 'Tamil Nadu Regulated' },
-          { id: 'koyambedu', label: 'Chennai Koyambedu Terminal' }
+          { id: 'all', label: t.allMarketSources || 'All Market Sources' },
+          { id: 'agmarknet', label: t.apmcWholesaleMandis || 'APMC Wholesale Mandis' },
+          { id: 'tamil_nadu', label: t.tamilNaduRegulated || 'Tamil Nadu Regulated' },
+          { id: 'koyambedu', label: t.chennaiKoyambeduTerminal || 'Chennai Koyambedu Terminal' }
         ].map(src => (
           <button
             key={src.id}
@@ -134,7 +128,8 @@ export const MandiView = () => {
               fontSize: '0.8rem',
               background: selectedSource === src.id ? '#15803d' : '#f8fafc',
               color: selectedSource === src.id ? 'white' : '#475569',
-              border: `1px solid ${selectedSource === src.id ? '#15803d' : 'var(--border-medium)'}`
+              border: `1px solid ${selectedSource === src.id ? '#15803d' : 'var(--border-medium)'}`,
+              cursor: 'pointer'
             }}
           >
             {src.label}
@@ -173,7 +168,7 @@ export const MandiView = () => {
           />
         </div>
 
-        {/* Commodity Filter Pills covering all supported crops */}
+        {/* Commodity Filter Pills */}
         <div style={{ display: 'flex', gap: '0.4rem', overflowX: 'auto', paddingBottom: '4px', maxWidth: '100%' }}>
           <button
             onClick={() => setSelectedCommodity('All')}
@@ -185,7 +180,8 @@ export const MandiView = () => {
               background: selectedCommodity === 'All' ? '#15803d' : '#ffffff',
               color: selectedCommodity === 'All' ? 'white' : '#64748b',
               border: '1px solid var(--border-subtle)',
-              whiteSpace: 'nowrap'
+              whiteSpace: 'nowrap',
+              cursor: 'pointer'
             }}
           >
             {t.allCrops || "All Crops"}
@@ -202,7 +198,8 @@ export const MandiView = () => {
                 background: selectedCommodity === crop ? '#15803d' : '#ffffff',
                 color: selectedCommodity === crop ? 'white' : '#64748b',
                 border: '1px solid var(--border-subtle)',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                cursor: 'pointer'
               }}
             >
               {t.crops?.[crop.toLowerCase().split(' ')[0]] || crop}
@@ -222,18 +219,17 @@ export const MandiView = () => {
         }}>
           <AlertCircle size={36} color="#94a3b8" style={{ margin: '0 auto 0.75rem' }} />
           <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e293b', marginBottom: '0.4rem' }}>
-            No Mandi Records Found
+            {t.noMandiRecordsFound || "No Mandi Records Found"}
           </h3>
           <p style={{ fontSize: '0.85rem', color: '#64748b', maxWidth: '440px', margin: '0 auto 1.25rem' }}>
-            No market arrivals found matching commodity "{selectedCommodity}" in the selected market category.
-            We never substitute data from other states.
+            {t.noMandiRecordsDesc || `No market arrivals found matching commodity "${selectedCommodity}" in the selected market category. We never substitute data from other states.`}
           </p>
           <button
             onClick={() => { setSelectedCommodity('All'); setSelectedSource('all'); setSearchQuery(''); }}
             className="btn-primary"
             style={{ margin: '0 auto' }}
           >
-            Clear Filters & View All
+            {t.clearFiltersViewAll || "Clear Filters & View All"}
           </button>
         </div>
       )}
@@ -257,13 +253,13 @@ export const MandiView = () => {
                       {item.variety || t.standardQuality || 'Standard Quality'} • {item.market}, {item.district}
                     </div>
                     <div style={{ fontSize: '0.72rem', color: '#0284c7', fontWeight: 600, marginTop: '2px' }}>
-                      {isKoyambedu ? 'Terminal Wholesale Market' : `${item.state} APMC Mandi`}
+                      {isKoyambedu ? (t.terminalWholesaleMarket || 'Terminal Wholesale Market') : `${item.state} APMC Mandi`}
                     </div>
                   </div>
-                  <LiveFallbackBadge 
-                    source={item.source} 
-                    sourceName={item.source_name} 
-                    fallbackReason={item.fallback_reason} 
+                  <LiveFallbackBadge
+                    source={item.source}
+                    sourceName={item.source_name}
+                    fallbackReason={item.fallback_reason}
                   />
                 </div>
 
@@ -287,14 +283,14 @@ export const MandiView = () => {
                   </div>
 
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{t.minMaxPrice || "Min - Max Range"}</div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{t.minMaxPrice || "Min / Max Range"}</div>
                     <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>
                       ₹{item.min_price} - ₹{item.max_price}
                     </div>
                   </div>
                 </div>
 
-                {/* Verified Government MSP Comparison Pill */}
+                {/* Government MSP Comparison Pill */}
                 {hasMsp ? (
                   <div style={{
                     display: 'flex',
@@ -309,7 +305,7 @@ export const MandiView = () => {
                     marginBottom: '0.75rem'
                   }}>
                     <span>{t.govtMsp || "Govt MSP"}: ₹{item.msp}</span>
-                    <span>{isAboveMsp ? `+₹${item.modal_price - item.msp} above MSP` : `-₹${item.msp - item.modal_price} below MSP`}</span>
+                    <span>{isAboveMsp ? `+₹${item.modal_price - item.msp} ${t.aboveMsp || 'above MSP'}` : `-₹${item.msp - item.modal_price} ${t.belowMsp || 'below MSP'}`}</span>
                   </div>
                 ) : (
                   <div style={{
@@ -321,7 +317,7 @@ export const MandiView = () => {
                     fontWeight: 600,
                     marginBottom: '0.75rem'
                   }}>
-                    MSP data unavailable (No government MSP mandated for this commodity)
+                    {t.noMspMandate || "MSP data unavailable (No government MSP mandated for this commodity)"}
                   </div>
                 )}
 

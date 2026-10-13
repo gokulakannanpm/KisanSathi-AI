@@ -1,11 +1,31 @@
 import React from 'react';
-import { CloudRain, Wind, Droplets, Thermometer, ArrowRight } from 'lucide-react';
+import { CloudRain, ArrowRight } from 'lucide-react';
 import { useFarmer } from '../../context/FarmerContext';
 import { LiveFallbackBadge } from '../Common/LiveFallbackBadge';
 
 export const WeatherSnapshot = () => {
   const { weather, t, setActiveTab } = useFarmer();
   if (!weather) return null;
+
+  const tempDisplay = (weather.temperature !== null && weather.temperature !== undefined)
+    ? `${weather.temperature}°C`
+    : '--';
+
+  const conditionDisplay = weather.location_unresolved
+    ? (t.locationUnresolved || 'Location weather unavailable')
+    : (weather.condition || '--');
+
+  const rainDisplay = (weather.rain_probability !== null && weather.rain_probability !== undefined)
+    ? `${weather.rain_probability}%`
+    : '--';
+
+  const humidityDisplay = (weather.humidity !== null && weather.humidity !== undefined)
+    ? `${weather.humidity}%`
+    : '--';
+
+  const windDisplay = (weather.wind_speed !== null && weather.wind_speed !== undefined)
+    ? `${weather.wind_speed} km/h`
+    : '--';
 
   return (
     <div className="ks-card ks-card-interactive" onClick={() => setActiveTab('weather')}>
@@ -19,10 +39,10 @@ export const WeatherSnapshot = () => {
 
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', marginBottom: '0.75rem' }}>
         <span style={{ fontSize: '2.2rem', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>
-          {weather.temperature}°C
+          {tempDisplay}
         </span>
         <span style={{ fontSize: '0.95rem', fontWeight: 600, color: '#0284c7' }}>
-          {weather.condition}
+          {conditionDisplay}
         </span>
       </div>
 
@@ -37,21 +57,21 @@ export const WeatherSnapshot = () => {
         marginBottom: '0.75rem'
       }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>{t.rainProbLabel}</div>
+          <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>{t.rainProbLabel || "Rain Prob"}</div>
           <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#dc2626' }}>
-            {weather.rain_probability}%
+            {rainDisplay}
           </div>
         </div>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>{t.humidity}</div>
+          <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>{t.humidity || "Humidity"}</div>
           <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0369a1' }}>
-            {weather.humidity}%
+            {humidityDisplay}
           </div>
         </div>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>{t.windSpeed}</div>
+          <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>{t.windSpeed || "Wind Speed"}</div>
           <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#475569' }}>
-            {weather.wind_speed} km/h
+            {windDisplay}
           </div>
         </div>
       </div>

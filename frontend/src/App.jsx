@@ -3,7 +3,6 @@ import { useFarmer } from './context/FarmerContext';
 import { Header } from './components/Header';
 import { Navigation } from './components/Navigation';
 import { ConnectiveLoopVisualizer } from './components/Dashboard/ConnectiveLoopVisualizer';
-import { HeroRecommendation } from './components/Dashboard/HeroRecommendation';
 import { WeatherSnapshot } from './components/Dashboard/WeatherSnapshot';
 import { MandiSnapshot } from './components/Dashboard/MandiSnapshot';
 import { DiarySnapshot } from './components/Dashboard/DiarySnapshot';
@@ -59,9 +58,6 @@ export function App() {
             
             {/* The Connective Loop Explainer Strip */}
             <ConnectiveLoopVisualizer />
-
-            {/* The Hero Recommendation Element */}
-            <HeroRecommendation />
 
             {/* Supporting Context Grid (Live Weather & Mandi directly beside recommendation) */}
             <div className="grid-2">

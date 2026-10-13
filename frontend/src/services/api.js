@@ -241,6 +241,21 @@ export const apiService = {
       clearTimeout(timeoutId);
       console.warn(`[KisanSathi AI] AI endpoint unavailable (${e.message}). Using context-aware fallback.`);
       
+      if (contextPayload?.mode === 'translate_ta_en' || contextPayload?.mode === 'translate_en_ta' || contextPayload?.is_translation) {
+        return {
+          explanation_text: contextPayload?.mode === 'translate_en_ta'
+            ? "மொழிபெயர்ப்பு தற்காலிகமாக கிடைக்கவில்லை. மீண்டும் முயற்சிக்கவும்."
+            : "Translation is temporarily unavailable. Please try again.",
+          provider_used: "Translation Unavailable (Offline)",
+          action_steps: [],
+          confidence: 0,
+          reasoning: "Translation service temporarily unavailable",
+          original_text: contextPayload?.question || '',
+          translated_text: null,
+          is_translation: true
+        };
+      }
+
       const q = (contextPayload?.question || '').toLowerCase();
       const ctx = contextPayload?.context || {};
       

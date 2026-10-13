@@ -53,27 +53,23 @@ Configure in  : .env
 Developer Doc : https://data.gov.in
 
 -------------------------------------------------------------------------------
- 4. AI LLM INTELLIGENCE CONFIGURATION
+ 4. AI GROQ INTELLIGENCE CONFIGURATION
 -------------------------------------------------------------------------------
-Variable Name : LLM_PROVIDER
-Purpose       : Switches between deterministic rule-based intelligence engine and live LLM.
-Required for  : Live LLM explanations
-Consumed by   : app/services/recommendation_service.py, app/routers/ai.py
-Default       : rule_based (KisanSathi Farm Intelligence Engine)
-Configure in  : .env
-
-Variable Name : OPENAI_API_KEY
-Purpose       : API key for OpenAI GPT-4o / GPT-3.5 model reasoning
-Required for  : OpenAI live reasoning mode (when LLM_PROVIDER=openai)
+Variable Name : GROQ_API_KEY
+Purpose       : API key for Groq Cloud ultra-fast inference (Llama 3.3 70B / 8B)
+Required for  : Live Groq AI contextual explanation mode
 Consumed by   : app/routers/ai.py
 Configure in  : .env
-Developer Doc : https://platform.openai.com/api-keys
+Developer Doc : https://console.groq.com/keys
 
-Variable Name : GEMINI_API_KEY
-Purpose       : API key for Google Gemini 1.5 Flash / Pro model reasoning
-Required for  : Gemini live reasoning mode (when LLM_PROVIDER=gemini)
+Variable Name : GROQ_MODEL
+Purpose       : Supported Groq model identifier (e.g. llama-3.3-70b-versatile)
+Required for  : Model selection
 Consumed by   : app/routers/ai.py
+Default       : llama-3.3-70b-versatile
 Configure in  : .env
-Developer Doc : https://aistudio.google.com
+
+Fallback Mode : When GROQ_API_KEY is not provided, the platform automatically
+                operates in deterministic offline rule engine fallback mode.
 
 ===============================================================================

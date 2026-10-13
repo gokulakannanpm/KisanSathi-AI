@@ -1,23 +1,33 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  X, 
-  Sparkles, 
-  Send, 
-  Bot, 
+import {
+  X,
+  Sparkles,
+  Send,
+  Bot,
   User,
   Mic,
   MicOff,
-  Volume2,
-  VolumeX,
-  AlertCircle
+  Compass,
+  Languages,
+  Square
 } from 'lucide-react';
 import { useFarmer } from '../../context/FarmerContext';
 import { apiService } from '../../services/api';
 import { translations } from '../../services/i18n';
+import { matchVoiceCommand } from '../../services/voiceNavigation';
 
 export const AIExplainerModal = () => {
-  const { isAiModalOpen, closeAiExplainer, aiModalContext, farmerId, farmer, language, t } = useFarmer();
-  // Safe translation object
+  const {
+    isAiModalOpen,
+    closeAiExplainer,
+    aiModalContext,
+    farmerId,
+    farmer,
+    language,
+    t,
+    setActiveTab
+  } = useFarmer();
+
   const activeT = t || translations[language] || translations.en;
 
   const [messages, setMessages] = useState([]);
@@ -25,140 +35,42 @@ export const AIExplainerModal = () => {
   const [loading, setLoading] = useState(false);
   const [providerUsed, setProviderUsed] = useState('');
 
-  // Voice Interaction State
+  // Interaction Modes:
+  // - 'ta_qa': Mode A (Tamil speech -> Tamil answer)
+  // - 'en_qa': Mode B (English speech -> English answer)
+  // - 'translate_ta_en': Mode C (Tamil -> English translation)
+  // - 'translate_en_ta': Mode D (English -> Tamil translation)
+  // - 'voice_nav': Voice Navigation (Local deterministic whitelist)
+  const [activeMode, setActiveMode] = useState(language === 'ta' ? 'ta_qa' : 'en_qa');
   const [isListening, setIsListening] = useState(false);
-  const [voiceError, setVoiceError] = useState('');
-  const [currentlySpeakingIdx, setCurrentlySpeakingIdx] = useState(null);
+  const [speechError, setSpeechError] = useState(null);
 
-  const recognitionRef = useRef(null);
   const hasFetchedRef = useRef(false);
+  const recognitionRef = useRef(null);
+  const isListeningRef = useRef(false);
 
-  // Stop active speech synthesis when closing or unmounting
-  const stopSpeech = () => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      setCurrentlySpeakingIdx(null);
-    }
+  // Check Web Speech API capability in the current browser
+  const isSpeechSupported = typeof window !== 'undefined' &&
+    !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+
+  // Get Web Speech recognition locale for the active mode
+  const getRecognitionLang = (mode) => {
+    if (mode === 'ta_qa' || mode === 'translate_ta_en') return 'ta-IN';
+    if (mode === 'en_qa' || mode === 'translate_en_ta') return 'en-IN';
+    // For voice navigation: respect current app language if Tamil, else en-IN
+    return language === 'ta' ? 'ta-IN' : 'en-IN';
   };
 
-  // Stop recognition
-  const stopListening = () => {
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.stop();
-      } catch (err) {
-        // Already stopped
+  // Synchronize initial mode with app language when modal opens
+  useEffect(() => {
+    if (isAiModalOpen) {
+      if (activeMode === 'ta_qa' && language === 'en') {
+        setActiveMode('en_qa');
+      } else if (activeMode === 'en_qa' && language === 'ta') {
+        setActiveMode('ta_qa');
       }
-      setIsListening(false);
     }
-  };
-
-  // Setup Web Speech Recognition
-  const toggleListening = () => {
-    setVoiceError('');
-    if (isListening) {
-      stopListening();
-      return;
-    }
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      setVoiceError(activeT.voiceNotSupported || "Speech recognition is not supported in this browser. Please type your query.");
-      return;
-    }
-
-    try {
-      const recognition = new SpeechRecognition();
-      recognitionRef.current = recognition;
-      recognition.continuous = false;
-      recognition.interimResults = true;
-
-      // Map app language to speech recognition tag
-      const langMap = {
-        en: 'en-IN',
-        hi: 'hi-IN',
-        ta: 'ta-IN',
-        mr: 'mr-IN'
-      };
-      recognition.lang = langMap[language] || 'en-IN';
-
-      recognition.onstart = () => {
-        setIsListening(true);
-        setVoiceError('');
-      };
-
-      recognition.onresult = (event) => {
-        let transcript = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          transcript += event.results[i][0].transcript;
-        }
-        setInputQuestion(transcript);
-      };
-
-      recognition.onerror = (event) => {
-        setIsListening(false);
-        if (event.error === 'not-allowed') {
-          setVoiceError(activeT.micPermissionDenied || "Microphone permission was denied. Please allow microphone access.");
-        } else if (event.error === 'no-speech') {
-          setVoiceError(activeT.noSpeechDetected || "No speech was detected. Please try speaking again.");
-        } else {
-          setVoiceError(`${activeT.voiceError || 'Voice recognition error'}: ${event.error}`);
-        }
-      };
-
-      recognition.onend = () => {
-        setIsListening(false);
-      };
-
-      recognition.start();
-    } catch (e) {
-      console.error("SpeechRecognition error:", e);
-      setIsListening(false);
-      setVoiceError("Unable to access microphone. Please type your question.");
-    }
-  };
-
-  // Voice Output (Text-to-Speech)
-  const toggleSpeech = (text, idx) => {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      setVoiceError(activeT.ttsNotSupported || "Audio speech playback is not supported in this browser.");
-      return;
-    }
-
-    if (currentlySpeakingIdx === idx) {
-      stopSpeech();
-      return;
-    }
-
-    stopSpeech();
-
-    try {
-      const utterance = new SpeechSynthesisUtterance(text);
-      const langMap = {
-        en: 'en-IN',
-        hi: 'hi-IN',
-        ta: 'ta-IN',
-        mr: 'mr-IN'
-      };
-      utterance.lang = langMap[language] || 'en-IN';
-      utterance.rate = 0.95;
-
-      utterance.onend = () => {
-        setCurrentlySpeakingIdx(null);
-      };
-
-      utterance.onerror = (e) => {
-        console.warn("Speech synthesis error:", e);
-        setCurrentlySpeakingIdx(null);
-      };
-
-      setCurrentlySpeakingIdx(idx);
-      window.speechSynthesis.speak(utterance);
-    } catch (err) {
-      console.error("TTS initiation failed:", err);
-      setCurrentlySpeakingIdx(null);
-    }
-  };
+  }, [isAiModalOpen, language]);
 
   // Fetch initial AI explanation from backend when modal opens
   useEffect(() => {
@@ -176,16 +88,17 @@ export const AIExplainerModal = () => {
       apiService.askAiExplain({
         farmer_id: farmerId || farmer?.id || 'demo_farmer_01',
         context: aiModalContext,
-        language: language || 'en'
+        language: language || 'en',
+        mode: 'qa'
       }).then(res => {
         if (!isMounted) return;
-        setProviderUsed(res.provider_used || 'Rule Engine Fallback');
+        setProviderUsed(res?.provider_used || 'Rule Engine Fallback');
         setMessages([
           {
             sender: 'ai',
-            text: res.explanation_text,
-            action_steps: res.action_steps,
-            provider: res.provider_used
+            text: res?.explanation_text || (aiModalContext?.ai_explanation || "Advisory based on farm memory and regional atmospheric conditions."),
+            action_steps: res?.action_steps,
+            provider: res?.provider_used
           }
         ]);
       }).catch(err => {
@@ -205,30 +118,188 @@ export const AIExplainerModal = () => {
       return () => {
         isMounted = false;
         clearTimeout(safetyTimer);
-        stopSpeech();
-        stopListening();
       };
     } else {
       hasFetchedRef.current = false;
       setMessages([]);
       setLoading(false);
-      stopSpeech();
-      stopListening();
+      setProviderUsed('');
+      setSpeechError(null);
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.abort();
+        } catch (e) {}
+      }
+      setIsListening(false);
+      isListeningRef.current = false;
     }
-  }, [isAiModalOpen]);
+  }, [isAiModalOpen, farmerId, farmer?.id, aiModalContext, language]);
+
+  // Cleanup speech recognition on unmount
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.abort();
+        } catch (e) {}
+      }
+    };
+  }, []);
 
   if (!isAiModalOpen) return null;
 
+  // ---------------------------------------------------------------------------
+  // Speech Recognition Controls (Web Speech API)
+  // ---------------------------------------------------------------------------
+  const startListening = () => {
+    if (!isSpeechSupported) {
+      setSpeechError(
+        activeT.micUnsupported ||
+        "Speech recognition is not supported in this browser. Please use Chrome, Edge, or a Web Speech API-compatible browser."
+      );
+      return;
+    }
+
+    // Prevent multiple simultaneous recording sessions
+    if (isListeningRef.current) return;
+
+    setSpeechError(null);
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = getRecognitionLang(activeMode);
+
+      recognition.onstart = () => {
+        setIsListening(true);
+        isListeningRef.current = true;
+        setSpeechError(null);
+      };
+
+      recognition.onresult = (event) => {
+        let currentTranscript = '';
+        for (let i = 0; i < event.results.length; i++) {
+          currentTranscript += event.results[i][0].transcript;
+        }
+        if (currentTranscript) {
+          setInputQuestion(currentTranscript);
+        }
+      };
+
+      recognition.onerror = (event) => {
+        setIsListening(false);
+        isListeningRef.current = false;
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+          setSpeechError(
+            activeT.micPermissionDenied ||
+            "Microphone permission was denied. Please allow microphone access in your browser settings."
+          );
+        } else if (event.error === 'no-speech') {
+          setSpeechError("No speech detected. Please speak closer to the microphone and try again.");
+        } else if (event.error === 'network') {
+          setSpeechError("Speech recognition network failure. Please verify internet connection.");
+        } else {
+          setSpeechError(`Speech recognition notice: ${event.error}`);
+        }
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+        isListeningRef.current = false;
+        // Important: Never submit automatically on end. Let the user review and edit the transcript.
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err) {
+      console.warn("Speech recognition initialization error:", err);
+      setIsListening(false);
+      isListeningRef.current = false;
+      setSpeechError("Could not start speech recognition session. Please try again.");
+    }
+  };
+
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {}
+    }
+    setIsListening(false);
+    isListeningRef.current = false;
+  };
+
+  const cancelListening = () => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.abort();
+      } catch (e) {}
+    }
+    setIsListening(false);
+    isListeningRef.current = false;
+    setSpeechError(null);
+  };
+
+  // ---------------------------------------------------------------------------
+  // Submission Handler (Supports Q&A Modes, Translation Modes & Voice Nav)
+  // ---------------------------------------------------------------------------
   const handleAsk = async (e) => {
     e.preventDefault();
     const queryText = inputQuestion.trim();
-    if (!queryText || loading) return;
-
-    stopListening();
-    stopSpeech();
+    // Prevent empty or duplicate submissions while loading or listening
+    if (!queryText || loading || isListening) return;
 
     setInputQuestion('');
-    setMessages(prev => [...prev, { sender: 'user', text: queryText }]);
+    setSpeechError(null);
+
+    // MODE: Voice Navigation (Local deterministic whitelist - No Groq call)
+    if (activeMode === 'voice_nav') {
+      setMessages(prev => [...prev, { sender: 'user', text: queryText, mode: 'voice_nav' }]);
+      const navResult = matchVoiceCommand(queryText);
+
+      if (navResult.matched) {
+        const feedback = language === 'ta' ? navResult.feedbackTa : navResult.feedbackEn;
+        setMessages(prev => [
+          ...prev,
+          {
+            sender: 'ai',
+            text: `🧭 ${feedback}`,
+            is_navigation: true,
+            target_tab: navResult.tabId,
+            provider: 'Voice Navigation Router (Local Whitelist)'
+          }
+        ]);
+        setActiveTab(navResult.tabId);
+        // Automatically close modal after brief confirmation so farmer sees the target tab
+        setTimeout(() => {
+          closeAiExplainer();
+        }, 1200);
+      } else {
+        const feedback = language === 'ta' ? navResult.feedbackTa : navResult.feedbackEn;
+        setMessages(prev => [
+          ...prev,
+          {
+            sender: 'ai',
+            text: `⚠️ ${feedback}`,
+            is_navigation: false,
+            provider: 'Voice Navigation Router'
+          }
+        ]);
+      }
+      return;
+    }
+
+    // MODES: Translation Modes (C, D) and Q&A Modes (A, B)
+    const isTrans = activeMode === 'translate_ta_en' || activeMode === 'translate_en_ta';
+    const targetLang = activeMode === 'translate_ta_en'
+      ? 'en'
+      : (activeMode === 'translate_en_ta'
+        ? 'ta'
+        : (activeMode === 'ta_qa' ? 'ta' : 'en'));
+
+    setMessages(prev => [...prev, { sender: 'user', text: queryText, mode: activeMode }]);
     setLoading(true);
 
     let isMounted = true;
@@ -240,31 +311,53 @@ export const AIExplainerModal = () => {
       const response = await apiService.askAiExplain({
         farmer_id: farmerId || farmer?.id || 'demo_farmer_01',
         question: queryText,
-        context: aiModalContext,
-        language: language || 'en'
+        // Translation requests must never be polluted with unrelated agricultural context
+        context: isTrans ? null : aiModalContext,
+        language: targetLang,
+        mode: activeMode,
+        is_translation: isTrans
       });
 
       if (!isMounted) return;
-      setProviderUsed(response.provider_used || providerUsed);
+      setProviderUsed(response?.provider_used || providerUsed);
       setMessages(prev => [
-        ...prev, 
-        { 
-          sender: 'ai', 
-          text: response.explanation_text,
-          action_steps: response.action_steps,
-          provider: response.provider_used
+        ...prev,
+        {
+          sender: 'ai',
+          text: response?.explanation_text || "Advisory calculated from agronomic model.",
+          action_steps: response?.action_steps,
+          provider: response?.provider_used,
+          is_translation: response?.is_translation || isTrans,
+          original_text: response?.original_text || queryText,
+          translated_text: response?.translated_text
         }
       ]);
     } catch (e) {
       if (!isMounted) return;
       console.error("AI question fetch error:", e);
-      setMessages(prev => [
-        ...prev,
-        {
-          sender: 'ai',
-          text: "AI Assistant Note: Live AI service is currently unavailable. Operating in localized agricultural fallback mode."
-        }
-      ]);
+      if (isTrans) {
+        setMessages(prev => [
+          ...prev,
+          {
+            sender: 'ai',
+            text: activeMode === 'translate_en_ta'
+              ? "மொழிபெயர்ப்பு தற்காலிகமாக கிடைக்கவில்லை. மீண்டும் முயற்சிக்கவும்."
+              : "Translation is temporarily unavailable. Please try again.",
+            is_translation: true,
+            original_text: queryText,
+            translated_text: null,
+            provider: 'Translation Unavailable (Offline)'
+          }
+        ]);
+      } else {
+        setMessages(prev => [
+          ...prev,
+          {
+            sender: 'ai',
+            text: activeT.aiServiceUnavailable || "AI Assistant Note: Live AI service is currently unavailable. Operating in localized agricultural fallback mode."
+          }
+        ]);
+      }
     } finally {
       clearTimeout(safetyTimer);
       if (isMounted) setLoading(false);
@@ -272,17 +365,24 @@ export const AIExplainerModal = () => {
   };
 
   const handleClose = () => {
-    stopSpeech();
-    stopListening();
+    cancelListening();
     closeAiExplainer();
   };
 
+  const modesList = [
+    { id: 'ta_qa', label: activeT.modeTaQa || 'தமிழ் கேள்வி', locale: 'ta-IN' },
+    { id: 'en_qa', label: activeT.modeEnQa || 'English Q&A', locale: 'en-IN' },
+    { id: 'translate_ta_en', label: activeT.modeTaToEn || 'தமிழ் → English', locale: 'ta-IN' },
+    { id: 'translate_en_ta', label: activeT.modeEnToTa || 'English → தமிழ்', locale: 'en-IN' },
+    { id: 'voice_nav', label: activeT.modeVoiceNav || 'Voice Nav', locale: language === 'ta' ? 'ta-IN' : 'en-IN' }
+  ];
+
   return (
     <div className="modal-overlay" onClick={handleClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ padding: '1.25rem', maxWidth: '640px' }}>
-        
+      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ padding: '1.25rem', maxWidth: '660px', width: '92%' }}>
+
         {/* Modal Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.75rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.75rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <div style={{
               background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
@@ -296,8 +396,8 @@ export const AIExplainerModal = () => {
               <Sparkles size={20} />
             </div>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
                   {activeT.aiModalTitle || "KisanSathi AI Farm Assistant"}
                 </h2>
                 {providerUsed && (
@@ -310,80 +410,81 @@ export const AIExplainerModal = () => {
                     borderRadius: '999px',
                     border: `1px solid ${providerUsed.includes("Live AI") ? "#86efac" : "#fcd34d"}`
                   }}>
-                    {providerUsed.includes("Live AI") ? providerUsed : "Rule Engine Fallback"}
+                    {providerUsed.includes("Live AI") ? providerUsed : (activeT.ruleEngineFallback || providerUsed)}
                   </span>
                 )}
               </div>
-              <p style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                {activeT.aiModalSubtitle || "Contextual agricultural reasoning"} ({farmer?.name || 'Farmer'})
+              <p style={{ fontSize: '0.75rem', color: '#64748b', margin: '0.15rem 0 0 0' }}>
+                {activeT.aiModalSubtitle || "Contextual agricultural reasoning & voice assistant"} ({farmer?.name || 'Farmer'})
               </p>
             </div>
           </div>
 
-          <button 
-            onClick={handleClose} 
-            style={{ background: '#f1f5f9', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          <button
+            onClick={handleClose}
+            style={{ background: '#f1f5f9', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}
             aria-label="Close"
           >
             <X size={18} />
           </button>
         </div>
 
-        {/* Voice Feedback Banner */}
-        {voiceError && (
-          <div style={{
-            background: '#fef2f2',
-            border: '1px solid #fecaca',
-            color: '#b91c1c',
-            borderRadius: '8px',
-            padding: '0.5rem 0.75rem',
-            fontSize: '0.8rem',
-            marginBottom: '0.75rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem'
-          }}>
-            <AlertCircle size={16} style={{ flexShrink: 0 }} />
-            <span>{voiceError}</span>
-          </div>
-        )}
-
-        {isListening && (
-          <div style={{
-            background: '#ecfdf5',
-            border: '1px solid #a7f3d0',
-            color: '#065f46',
-            borderRadius: '8px',
-            padding: '0.5rem 0.75rem',
-            fontSize: '0.82rem',
-            marginBottom: '0.75rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '0.5rem'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', animation: 'pulse 1.5s infinite' }} />
-              <strong>{activeT.listeningNow || "Listening... Speak your question in your language"}</strong>
-            </div>
-            <button
-              onClick={stopListening}
-              style={{ fontSize: '0.75rem', color: '#047857', fontWeight: 700, textDecoration: 'underline' }}
-            >
-              Done
-            </button>
-          </div>
-        )}
+        {/* Four Language Modes + Voice Navigation Selector */}
+        <div style={{
+          display: 'flex',
+          gap: '0.35rem',
+          padding: '0.35rem',
+          background: '#f8fafc',
+          borderRadius: '10px',
+          border: '1px solid var(--border-subtle)',
+          marginBottom: '0.75rem',
+          overflowX: 'auto',
+          alignItems: 'center'
+        }}>
+          {modesList.map(m => {
+            const isSelected = activeMode === m.id;
+            return (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => {
+                  if (isListening) cancelListening();
+                  setActiveMode(m.id);
+                  setSpeechError(null);
+                }}
+                style={{
+                  padding: '0.35rem 0.65rem',
+                  borderRadius: '8px',
+                  fontSize: '0.75rem',
+                  fontWeight: isSelected ? 700 : 500,
+                  background: isSelected ? '#15803d' : '#ffffff',
+                  color: isSelected ? '#ffffff' : '#475569',
+                  border: isSelected ? '1px solid #166534' : '1px solid #e2e8f0',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.3rem',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                {m.id === 'voice_nav' ? <Compass size={13} /> : (m.id.startsWith('translate') ? <Languages size={13} /> : <Sparkles size={13} />)}
+                <span>{m.label}</span>
+              </button>
+            );
+          })}
+        </div>
 
         {/* Chat / Explanation Stream */}
         <div style={{
           display: 'flex',
           flexDirection: 'column',
           gap: '0.85rem',
-          maxHeight: '380px',
+          maxHeight: '340px',
+          minHeight: '160px',
           overflowY: 'auto',
           padding: '0.5rem',
-          marginBottom: '1rem'
+          marginBottom: '0.75rem'
         }}>
           {messages.map((msg, idx) => (
             <div
@@ -421,51 +522,52 @@ export const AIExplainerModal = () => {
                 whiteSpace: 'pre-line',
                 position: 'relative'
               }}>
-                {msg.text}
+                {/* TRANSLATION RESPONSE DISPLAY: Distinct Original Transcript & Translated Result */}
+                {msg.is_translation ? (
+                  <div>
+                    <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.2rem' }}>
+                      {activeT.sourceTranscriptLabel || "Original Transcript:"}
+                    </div>
+                    <div style={{
+                      fontStyle: 'italic',
+                      color: '#334155',
+                      marginBottom: '0.6rem',
+                      padding: '0.4rem 0.6rem',
+                      background: 'rgba(0,0,0,0.04)',
+                      borderRadius: '6px'
+                    }}>
+                      "{msg.original_text}"
+                    </div>
 
-                {/* Voice Read Aloud Button for AI responses */}
-                {msg.sender === 'ai' && (
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.4rem' }}>
-                    <button
-                      onClick={() => toggleSpeech(msg.text, idx)}
-                      title={currentlySpeakingIdx === idx ? "Stop Audio" : "Read Aloud"}
-                      style={{
-                        background: currentlySpeakingIdx === idx ? '#fee2e2' : '#f1f5f9',
-                        color: currentlySpeakingIdx === idx ? '#b91c1c' : '#475569',
-                        border: 'none',
-                        borderRadius: '999px',
-                        padding: '0.2rem 0.5rem',
-                        fontSize: '0.72rem',
-                        fontWeight: 700,
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.25rem',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {currentlySpeakingIdx === idx ? (
-                        <>
-                          <VolumeX size={13} />
-                          <span>{activeT.stopReading || 'Stop'}</span>
-                        </>
-                      ) : (
-                        <>
-                          <Volume2 size={13} />
-                          <span>{activeT.readAloud || 'Listen'}</span>
-                        </>
-                      )}
-                    </button>
+                    {msg.translated_text ? (
+                      <div>
+                        <div style={{ fontSize: '0.72rem', color: '#15803d', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.2rem' }}>
+                          {activeT.translatedResultLabel || "Translated Output:"}
+                        </div>
+                        <div style={{ color: '#0f172a', fontWeight: 600, fontSize: '0.95rem' }}>
+                          {msg.translated_text}
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ color: '#dc2626', fontWeight: 600, fontSize: '0.85rem' }}>
+                        ⚠️ {msg.text}
+                      </div>
+                    )}
                   </div>
-                )}
+                ) : (
+                  <div>
+                    {msg.text}
 
-                {msg.action_steps && msg.action_steps.length > 0 && (
-                  <div style={{ marginTop: '0.75rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(0,0,0,0.1)' }}>
-                    <strong>{activeT.recommendedActionSteps || "Recommended Action Steps:"}</strong>
-                    <ul style={{ paddingLeft: '1.2rem', marginTop: '0.25rem' }}>
-                      {msg.action_steps.map((st, i) => (
-                        <li key={i}>{st}</li>
-                      ))}
-                    </ul>
+                    {msg.action_steps && msg.action_steps.length > 0 && (
+                      <div style={{ marginTop: '0.75rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(0,0,0,0.1)' }}>
+                        <strong>{activeT.recommendedActionSteps || "Recommended Action Steps:"}</strong>
+                        <ul style={{ paddingLeft: '1.2rem', marginTop: '0.25rem', marginBottom: 0 }}>
+                          {msg.action_steps.map((st, i) => (
+                            <li key={i}>{st}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -473,62 +575,161 @@ export const AIExplainerModal = () => {
           ))}
 
           {loading && (
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', color: '#64748b', fontSize: '0.85rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', color: '#64748b', fontSize: '0.85rem', padding: '0.5rem' }}>
               <Sparkles size={16} className="animate-spin" color="#d97706" />
               <span>{activeT.aiModalLoading || "KisanSathi AI is analyzing farm memory..."}</span>
             </div>
           )}
         </div>
 
-        {/* Input form with Voice Recognition Microphone Control */}
-        <form onSubmit={handleAsk} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <input
-            type="text"
-            placeholder={activeT.aiModalPlaceholder || "Ask anything or tap mic to speak..."}
-            value={inputQuestion}
-            onChange={(e) => setInputQuestion(e.target.value)}
-            style={{
-              flex: 1,
-              padding: '0.65rem 1rem',
-              borderRadius: 'var(--radius-full)',
-              border: '1px solid var(--border-medium)',
-              background: '#ffffff',
-              fontSize: '0.88rem'
-            }}
-          />
+        {/* Speech Input & Submission Form */}
+        <form onSubmit={handleAsk} style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
 
-          {/* Microphone Voice Button */}
-          <button
-            type="button"
-            onClick={toggleListening}
-            title={isListening ? (activeT.stopListening || "Stop Listening") : (activeT.listen || "Speak question in your language")}
-            style={{
-              background: isListening ? '#ef4444' : '#f1f5f9',
-              color: isListening ? 'white' : '#475569',
-              border: isListening ? '1px solid #dc2626' : '1px solid var(--border-medium)',
-              borderRadius: '50%',
-              width: '38px',
-              height: '38px',
+          {/* Active Listening Status Bar */}
+          {isListening && (
+            <div style={{
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              flexShrink: 0
-            }}
-            aria-label="Toggle Voice Input"
-          >
-            {isListening ? <MicOff size={18} /> : <Mic size={18} />}
-          </button>
+              justifyContent: 'space-between',
+              padding: '0.35rem 0.75rem',
+              background: '#fee2e2',
+              border: '1px solid #fca5a5',
+              borderRadius: '8px',
+              fontSize: '0.8rem',
+              color: '#991b1b'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                <span style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  background: '#ef4444',
+                  display: 'inline-block'
+                }} />
+                <strong>{activeT.micListening || "Listening..."} ({getRecognitionLang(activeMode)})</strong>
+                <span style={{ fontSize: '0.72rem', color: '#7f1d1d' }}>Review/edit before submitting</span>
+              </div>
+              <div style={{ display: 'flex', gap: '0.35rem' }}>
+                <button
+                  type="button"
+                  onClick={stopListening}
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #dc2626',
+                    color: '#dc2626',
+                    borderRadius: '6px',
+                    padding: '0.2rem 0.5rem',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem'
+                  }}
+                >
+                  <Square size={10} fill="#dc2626" />
+                  <span>{activeT.micStop || "Stop"}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={cancelListening}
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #94a3b8',
+                    color: '#475569',
+                    borderRadius: '6px',
+                    padding: '0.2rem 0.5rem',
+                    fontSize: '0.72rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {activeT.micCancel || "Cancel"}
+                </button>
+              </div>
+            </div>
+          )}
 
-          <button
-            type="submit"
-            disabled={loading || !inputQuestion.trim()}
-            className="btn-primary"
-            style={{ borderRadius: 'var(--radius-full)', padding: '0.65rem 1.15rem', flexShrink: 0 }}
-          >
-            <Send size={16} />
-          </button>
+          {/* Speech Error Banner */}
+          {speechError && (
+            <div style={{
+              padding: '0.35rem 0.65rem',
+              background: '#fef2f2',
+              border: '1px solid #fecaca',
+              borderRadius: '6px',
+              fontSize: '0.75rem',
+              color: '#b91c1c'
+            }}>
+              ⚠️ {speechError}
+            </div>
+          )}
+
+          {/* Microphone Button + Editable Transcript Input + Submit Button */}
+          <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+            <button
+              type="button"
+              onClick={isListening ? stopListening : startListening}
+              disabled={loading}
+              style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: isListening ? '#ef4444' : '#f0fdf4',
+                border: `1px solid ${isListening ? '#dc2626' : '#86efac'}`,
+                color: isListening ? '#ffffff' : '#15803d',
+                cursor: 'pointer',
+                flexShrink: 0,
+                transition: 'all 0.15s ease'
+              }}
+              title={isListening ? "Stop Recording" : `Speak (${getRecognitionLang(activeMode)})`}
+              aria-label="Microphone voice input"
+            >
+              {isListening ? <Square size={16} fill="#ffffff" /> : <Mic size={18} />}
+            </button>
+
+            <input
+              type="text"
+              placeholder={
+                activeMode === 'voice_nav'
+                  ? (language === 'ta' ? "கட்டளையைப் பேசவும் (எ.கா. 'வானிலை', 'மண்டி விலை')..." : "Speak or type command (e.g. 'Open weather', 'Show mandi prices')...")
+                  : (activeMode === 'translate_ta_en'
+                    ? "தமிழ் உரை பேசவும் / எழுதவும் (English மொழிபெயர்ப்புக்கு)..."
+                    : (activeMode === 'translate_en_ta'
+                      ? "Speak or type English text for Tamil translation..."
+                      : (activeMode === 'ta_qa'
+                        ? "தமிழில் விவசாயக் கேள்வி கேட்கவும்..."
+                        : (activeT.aiModalPlaceholder || "Ask anything about your farm..."))))
+              }
+              value={inputQuestion}
+              onChange={(e) => setInputQuestion(e.target.value)}
+              style={{
+                flex: 1,
+                padding: '0.65rem 1rem',
+                borderRadius: 'var(--radius-full)',
+                border: '1px solid var(--border-medium)',
+                background: '#ffffff',
+                fontSize: '0.88rem'
+              }}
+            />
+
+            <button
+              type="submit"
+              disabled={loading || isListening || !inputQuestion.trim()}
+              className="btn-primary"
+              style={{
+                borderRadius: 'var(--radius-full)',
+                padding: '0.65rem 1.15rem',
+                flexShrink: 0,
+                opacity: (loading || isListening || !inputQuestion.trim()) ? 0.6 : 1
+              }}
+              aria-label="Submit query"
+            >
+              <Send size={16} />
+            </button>
+          </div>
+
         </form>
 
       </div>

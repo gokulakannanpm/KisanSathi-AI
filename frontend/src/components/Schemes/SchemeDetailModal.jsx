@@ -149,13 +149,13 @@ export const SchemeDetailModal = () => {
               openAiExplainer({
                 headline: `Government Scheme Guidance: ${selectedScheme.name}`,
                 reasoning: `Eligibility & application procedure assistance for ${selectedScheme.name}`,
-                ai_explanation: selectedScheme.benefits + "\n\nApplication Guide: " + selectedScheme.application_steps.join(" ")
+                ai_explanation: selectedScheme.benefits + "\n\nApplication Guide: " + (selectedScheme.application_steps ? selectedScheme.application_steps.join(" ") : "")
               });
             }}
             className="btn-secondary"
           >
             <Sparkles size={16} color="#d97706" />
-            <span>Ask AI About Scheme</span>
+            <span>{t.askAiAboutScheme || "Ask AI About Scheme"}</span>
           </button>
         </div>
 

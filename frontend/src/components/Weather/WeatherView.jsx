@@ -1,24 +1,23 @@
 import React, { useState } from 'react';
-import { 
-  CloudRain, 
-  Wind, 
-  Droplets, 
-  Thermometer, 
-  AlertTriangle, 
-  CheckCircle2, 
-  ShieldAlert, 
+import {
+  CloudRain,
+  Wind,
+  Droplets,
+  Thermometer,
+  AlertTriangle,
+  CheckCircle2,
+  ShieldAlert,
   Calendar,
   PlusCircle,
   Check,
   MapPin,
-  Clock,
-  Sparkles
+  Clock
 } from 'lucide-react';
 import { useFarmer } from '../../context/FarmerContext';
 import { LiveFallbackBadge } from '../Common/LiveFallbackBadge';
 
 export const WeatherView = () => {
-  const { weather, t, farmer, addDiaryEntry, openAiExplainer } = useFarmer();
+  const { weather, t, farmer, addDiaryEntry } = useFarmer();
   const [addedAdviceIds, setAddedAdviceIds] = useState([]);
   const [addingId, setAddingId] = useState(null);
   const [feedbackMsg, setFeedbackMsg] = useState('');
@@ -45,10 +44,10 @@ export const WeatherView = () => {
         }}>
           <AlertTriangle size={36} color="#d97706" style={{ margin: '0 auto 0.75rem' }} />
           <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#1e293b', marginBottom: '0.4rem' }}>
-            Location Weather Unavailable
+            {t.locationWeatherUnavailable || "Location Weather Unavailable"}
           </h3>
           <p style={{ fontSize: '0.85rem', color: '#64748b', maxWidth: '440px', margin: '0 auto 1.25rem' }}>
-            {weather.message || "We could not resolve GPS radar coordinates for your farm location. We never silently substitute another region's weather."}
+            {weather.message || (t.locationUnresolvedMessage || "We could not resolve GPS radar coordinates for your farm location. We never silently substitute another region's weather.")}
           </p>
         </div>
       </div>
@@ -56,7 +55,7 @@ export const WeatherView = () => {
   }
 
   // Display accurate resolved location
-  const locationLabel = weather.resolved_location || 
+  const locationLabel = weather.resolved_location ||
     (farmer?.district ? `${farmer.district}, ${farmer.state}` : 'Regional Agrometeorological Station');
 
   // Add Weather Action to Farm Diary (Persisted as Planned Activity)
@@ -79,11 +78,11 @@ export const WeatherView = () => {
 
       await addDiaryEntry(entry);
       setAddedAdviceIds(prev => [...prev, advice.id]);
-      setFeedbackMsg(`Action added to Farm Diary as planned task!`);
+      setFeedbackMsg(t.actionAddedSuccess || `Action added to Farm Diary as planned task!`);
       setTimeout(() => setFeedbackMsg(''), 4000);
     } catch (err) {
       console.error("Failed to add weather action to diary:", err);
-      setFeedbackMsg(`Failed to save action to diary. Please try again.`);
+      setFeedbackMsg(t.actionAddFailed || `Failed to save action to diary. Please try again.`);
     } finally {
       setAddingId(null);
     }
@@ -91,7 +90,7 @@ export const WeatherView = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-      
+
       {/* Header & Source */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
         <div>
@@ -116,18 +115,18 @@ export const WeatherView = () => {
           <div>
             <span style={{ fontSize: '0.85rem', fontWeight: 700, background: 'rgba(255,255,255,0.2)', padding: '0.25rem 0.65rem', borderRadius: '999px', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
               <MapPin size={14} />
-              <span>Current Status • {locationLabel}</span>
+              <span>{t.currentStatus || "Current Status"} • {locationLabel}</span>
             </span>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '1rem', marginTop: '0.75rem' }}>
               <span style={{ fontSize: '3.5rem', fontWeight: 800, lineHeight: 1 }}>
-                {weather.temperature !== null ? `${weather.temperature}°C` : '--'}
+                {weather.temperature !== null && weather.temperature !== undefined ? `${weather.temperature}°C` : '--'}
               </span>
               <span style={{ fontSize: '1.35rem', fontWeight: 700, color: '#e0f2fe' }}>
-                {weather.condition}
+                {weather.condition || '--'}
               </span>
             </div>
             <div style={{ fontSize: '0.85rem', opacity: 0.9, marginTop: '0.25rem' }}>
-              Last Synced: {weather.fetched_at ? new Date(weather.fetched_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent'} via {weather.source_name}
+              {t.lastSynced || "Last Synced"}: {weather.fetched_at ? new Date(weather.fetched_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent'} via {weather.source_name || 'Agrometeorological Feed'}
             </div>
           </div>
 
@@ -144,7 +143,7 @@ export const WeatherView = () => {
               <span>{t.sprayingFeasibility || "Spraying Window"}</span>
             </div>
             <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fee2e2' }}>
-              {weather.advisory?.spraying_index || 'SAFE (Dry Window)'}
+              {weather.advisory?.spraying_index || (t.sprayingSafe || 'SAFE (Dry Window)')}
             </div>
           </div>
         </div>
@@ -189,13 +188,13 @@ export const WeatherView = () => {
         </div>
       </div>
 
-      {/* Actionable Weather Advice (Prompt 2 requirement) */}
+      {/* Actionable Weather Advice */}
       {weather.actionable_advice && weather.actionable_advice.length > 0 && (
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <Clock size={18} color="#15803d" />
-              <span>Actionable Weather Advice for Your Farm</span>
+              <span>{t.actionableWeatherAdvice || "Actionable Weather Advice for Your Farm"}</span>
             </h3>
             {feedbackMsg && (
               <span style={{ fontSize: '0.8rem', color: '#15803d', fontWeight: 700, background: '#dcfce7', padding: '0.2rem 0.6rem', borderRadius: '6px' }}>
@@ -208,8 +207,8 @@ export const WeatherView = () => {
             {weather.actionable_advice.map((adv) => {
               const isAdded = addedAdviceIds.includes(adv.id);
               return (
-                <div 
-                  key={adv.id} 
+                <div
+                  key={adv.id}
                   className="ks-card"
                   style={{
                     display: 'flex',
@@ -234,7 +233,7 @@ export const WeatherView = () => {
                       </span>
                       {adv.crop && (
                         <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>
-                          Crop: {adv.crop}
+                          Crop: {t.crops?.[adv.crop.toLowerCase()] || adv.crop}
                         </span>
                       )}
                     </div>
@@ -300,7 +299,7 @@ export const WeatherView = () => {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
           {weather.forecast_3day?.map((day, idx) => (
-            <div 
+            <div
               key={idx}
               className="ks-card"
               style={{
@@ -337,7 +336,7 @@ export const WeatherView = () => {
           <span>{t.drainageAdvisoryTitle || "Drainage & Field Precautions"}</span>
         </h4>
         <p style={{ fontSize: '0.85rem', color: '#78350f', lineHeight: 1.5 }}>
-          {weather.advisory?.drainage_advisory || 'Ensure drainage channels and trenches across your cultivated plots are cleared to avoid root waterlogging during precipitation.'}
+          {weather.advisory?.drainage_advisory || (t.drainageAdvisoryDefault || 'Ensure drainage channels and trenches across your cultivated plots are cleared to avoid root waterlogging during precipitation.')}
         </p>
       </div>
 

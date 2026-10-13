@@ -79,10 +79,17 @@ export const mockFarmerProfiles = {
   }
 };
 
+const _now = new Date();
+const _formatDate = (offsetDays = 0) => {
+  const d = new Date(_now);
+  d.setDate(d.getDate() + offsetDays);
+  return d.toISOString().split('T')[0];
+};
+
 export const mockDiaryEntries = [
   {
     id: "diary_001",
-    date: "2026-08-27",
+    date: _formatDate(1),
     activity_type: "Pesticide Spraying",
     crop: "cotton",
     notes: "Planned pesticide spraying (Chlorpyrifos) for cotton pink bollworm prevention tomorrow afternoon.",
@@ -92,7 +99,7 @@ export const mockDiaryEntries = [
   },
   {
     id: "diary_002",
-    date: "2026-08-22",
+    date: _formatDate(-5),
     activity_type: "Fertilizer Application",
     crop: "soybean",
     notes: "Applied 50kg Single Super Phosphate (SSP) along with DAP across plot B.",
@@ -102,7 +109,7 @@ export const mockDiaryEntries = [
   },
   {
     id: "diary_003",
-    date: "2026-08-14",
+    date: _formatDate(-13),
     activity_type: "Drip Irrigation",
     crop: "cotton",
     notes: "Ran drip irrigation cycle for 4 hours following 5-day dry spell.",
@@ -112,7 +119,7 @@ export const mockDiaryEntries = [
   },
   {
     id: "diary_004",
-    date: "2026-07-28",
+    date: _formatDate(-30),
     activity_type: "Sowing",
     crop: "cotton",
     notes: "Sowed Bt-Cotton hybrid seed packet (BG-II) with 3x1.5 ft spacing.",
@@ -129,13 +136,13 @@ export const mockWeather = {
   humidity: 92,
   wind_speed: 22.5,
   pressure: 1008,
-  source: "live",
-  source_name: "IMD Nagpur Doppler Radar Station",
+  source: "fallback",
+  source_name: "Local Agrometeorological Baseline Cache",
   fetched_at: new Date().toISOString(),
   forecast_3day: [
-    { day: "Tomorrow (Thu)", condition: "Heavy Rain (45-60mm)", rain_prob: 88, temp_max: 27, temp_min: 22, spraying_safe: false },
-    { day: "Friday", condition: "Scattered Showers", rain_prob: 60, temp_max: 29, temp_min: 23, spraying_safe: false },
-    { day: "Saturday", condition: "Partly Cloudy / Clear", rain_prob: 15, temp_max: 32, temp_min: 24, spraying_safe: true }
+    { day: "Tomorrow", condition: "Heavy Rain (45-60mm)", rain_prob: 88, temp_max: 27, temp_min: 22, spraying_safe: false },
+    { day: "Day 2", condition: "Scattered Showers", rain_prob: 60, temp_max: 29, temp_min: 23, spraying_safe: false },
+    { day: "Day 3", condition: "Partly Cloudy / Clear", rain_prob: 15, temp_max: 32, temp_min: 24, spraying_safe: true }
   ],
   advisory: {
     spraying_index: "UNSAFE (Rain Washout Risk >95%)",
@@ -156,11 +163,12 @@ export const mockMandiPrices = [
     max_price: 7650,
     unit: "₹ / Quintal",
     msp: 7121,
-    source: "live",
-    source_name: "AGMARKNET Live API",
+    source: "fallback",
+    source_name: "AGMARKNET Local Baseline Cache",
+    fallback_reason: "Offline / historical baseline rate",
     price_trend: "up",
     trend_pct: "+3.2%",
-    date: "2026-08-26",
+    date: _formatDate(0),
     fetched_at: new Date().toISOString(),
     ai_selling_tip: "Mandi price is ₹299 above MSP. Demand is peaking at Nagpur and Hinganghat. Hold harvest until Saturday for potential ₹7,550+ peak."
   },
@@ -180,7 +188,7 @@ export const mockMandiPrices = [
     fallback_reason: "Daily live server sync pending; displaying rolling modal baseline.",
     price_trend: "stable",
     trend_pct: "0.0%",
-    date: "2026-08-25",
+    date: _formatDate(-1),
     fetched_at: new Date().toISOString(),
     ai_selling_tip: "Trading slightly below MSP. Wait for central NAFED procurement centers to open next week."
   },
@@ -195,11 +203,12 @@ export const mockMandiPrices = [
     max_price: 2700,
     unit: "₹ / Quintal",
     msp: 2275,
-    source: "live",
-    source_name: "AGMARKNET Live API",
+    source: "fallback",
+    source_name: "AGMARKNET Local Baseline Cache",
+    fallback_reason: "Offline / historical baseline rate",
     price_trend: "up",
     trend_pct: "+1.8%",
-    date: "2026-08-26",
+    date: _formatDate(0),
     fetched_at: new Date().toISOString(),
     ai_selling_tip: "Steady demand from local flour mills. Good time to offload remaining rabi stock."
   },
@@ -219,7 +228,7 @@ export const mockMandiPrices = [
     fallback_reason: "Direct terminal connection timeout, fallback cached rate used.",
     price_trend: "up",
     trend_pct: "+4.1%",
-    date: "2026-08-24",
+    date: _formatDate(-2),
     fetched_at: new Date().toISOString(),
     ai_selling_tip: "Strong festive demand supporting chana prices."
   }

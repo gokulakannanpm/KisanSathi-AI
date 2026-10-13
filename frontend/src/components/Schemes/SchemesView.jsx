@@ -4,11 +4,7 @@ import {
   CheckCircle2, 
   XCircle, 
   Search, 
-  ExternalLink, 
-  Volume2, 
   ChevronRight, 
-  ShieldCheck, 
-  Sparkles,
   Info,
   AlertTriangle
 } from 'lucide-react';
@@ -16,7 +12,7 @@ import { useFarmer } from '../../context/FarmerContext';
 import { AudioNarrationButton } from '../Common/AudioNarrationButton';
 
 export const SchemesView = () => {
-  const { schemes, setSelectedScheme, t, language, farmer } = useFarmer();
+  const { schemes, setSelectedScheme, t, farmer } = useFarmer();
   // Matching / eligible schemes is the default primary view
   const [filterEligibleOnly, setFilterEligibleOnly] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -42,11 +38,11 @@ export const SchemesView = () => {
         <p className="section-subtitle">
           {farmer ? (
             <>
-              Deterministic, rule-based matching evaluated against {farmer.name}'s <strong>{farmer.land_size_acres} acre</strong> farm holding in {farmer.state || 'your state'}
+              {t.schemesEvaluatedFor || "Deterministic, rule-based matching evaluated for"} {farmer.name}'s <strong>{farmer.land_size_acres} {t.perAcre || "Acre"}</strong> {farmer.state || ''}
             </>
           ) : (
             <>
-              Displaying government schemes catalogue with general eligibility criteria.
+              {t.schemesGeneralCatalogue || "Displaying government schemes catalogue with general eligibility criteria."}
             </>
           )}
         </p>
@@ -67,7 +63,7 @@ export const SchemesView = () => {
         }}>
           <AlertTriangle size={20} color="#d97706" style={{ flexShrink: 0 }} />
           <div>
-            <strong>Farmer Profile Unavailable:</strong> Personalized eligibility evaluation requires an active farmer profile. Please select or register a farmer in the top bar to verify landholding and crop rules. General criteria shown below.
+            <strong>{t.farmerProfileUnavailable || "Farmer Profile Unavailable"}:</strong> {t.farmerProfileUnavailableDesc || "Personalized eligibility evaluation requires an active farmer profile. Please select or register a farmer in the top bar to verify landholding and crop rules. General criteria shown below."}
           </div>
         </div>
       )}
@@ -85,7 +81,7 @@ export const SchemesView = () => {
           <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
           <input
             type="text"
-            placeholder="Search scheme name or benefit..."
+            placeholder={t.searchSchemePlaceholder || "Search scheme name or benefit..."}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
@@ -110,10 +106,11 @@ export const SchemesView = () => {
               fontSize: '0.8rem',
               background: filterEligibleOnly ? '#166534' : '#ffffff',
               color: filterEligibleOnly ? 'white' : '#166534',
-              border: '1px solid #86efac'
+              border: '1px solid #86efac',
+              cursor: 'pointer'
             }}
           >
-            Eligible Schemes ({eligibleCount})
+            {t.eligibleSchemes || "Eligible Schemes"} ({eligibleCount})
           </button>
           <button
             onClick={() => setFilterEligibleOnly(false)}
@@ -124,10 +121,11 @@ export const SchemesView = () => {
               fontSize: '0.8rem',
               background: !filterEligibleOnly ? '#15803d' : '#ffffff',
               color: !filterEligibleOnly ? 'white' : '#64748b',
-              border: '1px solid var(--border-subtle)'
+              border: '1px solid var(--border-subtle)',
+              cursor: 'pointer'
             }}
           >
-            All Schemes ({schemes.length})
+            {t.allSchemes || "All Schemes"} ({schemes.length})
           </button>
         </div>
       </div>
@@ -143,12 +141,12 @@ export const SchemesView = () => {
         }}>
           <Info size={36} color="#94a3b8" style={{ margin: '0 auto 0.75rem' }} />
           <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e293b', marginBottom: '0.4rem' }}>
-            {filterEligibleOnly ? "No Matching Eligible Schemes" : "No Schemes Found"}
+            {filterEligibleOnly ? (t.noMatchingEligibleSchemes || "No Matching Eligible Schemes") : (t.noSchemesFound || "No Schemes Found")}
           </h3>
           <p style={{ fontSize: '0.85rem', color: '#64748b', maxWidth: '440px', margin: '0 auto 1.25rem' }}>
             {filterEligibleOnly 
-              ? "Based on your current land size and crop preferences, no eligible schemes matched. Switch to 'All Schemes' to view universal central and state programmes."
-              : "No schemes match your search query."}
+              ? (t.noEligibleSchemesHint || "Based on your current land size and crop preferences, no eligible schemes matched. Switch to 'All Schemes' to view universal central and state programmes.")
+              : (t.noSchemesSearchHint || "No schemes match your search query.")}
           </p>
           {filterEligibleOnly && (
             <button
@@ -156,7 +154,7 @@ export const SchemesView = () => {
               className="btn-primary"
               style={{ margin: '0 auto' }}
             >
-              Switch to All Schemes ({schemes.length})
+              {t.switchToAllSchemes || "Switch to All Schemes"} ({schemes.length})
             </button>
           )}
         </div>
@@ -225,7 +223,7 @@ export const SchemesView = () => {
                 {scheme.eligibility_reasons && scheme.eligibility_reasons.length > 0 && (
                   <div style={{ fontSize: '0.78rem', color: '#64748b', marginBottom: '0.75rem' }}>
                     <div style={{ fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>
-                      Eligibility Verification:
+                      {t.eligibilityVerification || "Eligibility Verification"}:
                     </div>
                     <ul style={{ paddingLeft: '1.1rem', margin: 0 }}>
                       {scheme.eligibility_reasons.slice(0, 2).map((reason, rIdx) => (
@@ -266,7 +264,7 @@ export const SchemesView = () => {
                     cursor: 'pointer'
                   }}
                 >
-                  <span>View Details & Apply</span>
+                  <span>{t.viewDetailsApply || "View Details & Apply"}</span>
                   <ChevronRight size={16} />
                 </button>
               </div>

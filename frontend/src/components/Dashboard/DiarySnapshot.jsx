@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, Plus, ArrowRight, CheckCircle2, Clock } from 'lucide-react';
+import { BookOpen, Plus, ArrowRight } from 'lucide-react';
 import { useFarmer } from '../../context/FarmerContext';
 
 export const DiarySnapshot = ({ onAddEntryClick }) => {
@@ -25,7 +25,8 @@ export const DiarySnapshot = ({ onAddEntryClick }) => {
             padding: '0.25rem 0.65rem',
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '0.25rem'
+            gap: '0.25rem',
+            cursor: 'pointer'
           }}
         >
           <Plus size={14} />
@@ -34,64 +35,70 @@ export const DiarySnapshot = ({ onAddEntryClick }) => {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '0.75rem' }}>
-        {recentEntries.map((entry, idx) => {
-          const isPlanned = entry.status === 'planned';
-          const activityLabel = t.activityTypes?.[entry.activity_type] || entry.activity_type;
-          const cropLabel = t.crops?.[entry.crop?.toLowerCase()] || entry.crop;
+        {recentEntries.length === 0 ? (
+          <div style={{ color: '#64748b', fontSize: '0.85rem', padding: '0.75rem 0', textAlign: 'center' }}>
+            {t.noDiaryEntries || "No farm diary entries recorded yet."}
+          </div>
+        ) : (
+          recentEntries.map((entry, idx) => {
+            const isPlanned = entry.status === 'planned';
+            const activityLabel = t.activityTypes?.[entry.activity_type] || entry.activity_type;
+            const cropLabel = t.crops?.[entry.crop?.toLowerCase()] || entry.crop;
 
-          return (
-            <div
-              key={entry.id || idx}
-              style={{
-                background: isPlanned ? '#fffbeb' : '#f8fafc',
-                borderLeft: `4px solid ${isPlanned ? '#f59e0b' : '#22c55e'}`,
-                borderRadius: '8px',
-                padding: '0.5rem 0.75rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '0.5rem'
-              }}
-            >
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <span style={{ fontWeight: 700, fontSize: '0.85rem', color: '#0f172a' }}>
-                    {activityLabel}
-                  </span>
-                  <span style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'capitalize' }}>
-                    ({cropLabel})
-                  </span>
+            return (
+              <div
+                key={entry.id || idx}
+                style={{
+                  background: isPlanned ? '#fffbeb' : '#f8fafc',
+                  borderLeft: `4px solid ${isPlanned ? '#f59e0b' : '#22c55e'}`,
+                  borderRadius: '8px',
+                  padding: '0.5rem 0.75rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '0.5rem'
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <span style={{ fontWeight: 700, fontSize: '0.85rem', color: '#0f172a' }}>
+                      {activityLabel}
+                    </span>
+                    <span style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'capitalize' }}>
+                      ({cropLabel})
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#475569', maxWidth: '380px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {entry.notes}
+                  </div>
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#475569', maxWidth: '380px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {entry.notes}
+
+                <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                  <span style={{
+                    fontSize: '0.7rem',
+                    fontWeight: 700,
+                    color: isPlanned ? '#b45309' : '#15803d',
+                    background: isPlanned ? '#fef3c7' : '#dcfce7',
+                    padding: '0.15rem 0.45rem',
+                    borderRadius: '999px'
+                  }}>
+                    {isPlanned ? (t.statusPlanned || 'Planned') : (t.statusCompleted || 'Done')}
+                  </span>
+                  <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.15rem' }}>
+                    {entry.date}
+                  </div>
                 </div>
               </div>
-
-              <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                <span style={{
-                  fontSize: '0.7rem',
-                  fontWeight: 700,
-                  color: isPlanned ? '#b45309' : '#15803d',
-                  background: isPlanned ? '#fef3c7' : '#dcfce7',
-                  padding: '0.15rem 0.45rem',
-                  borderRadius: '999px'
-                }}>
-                  {isPlanned ? (t.statusPlanned || 'Planned') : (t.statusCompleted || 'Done')}
-                </span>
-                <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.15rem' }}>
-                  {entry.date}
-                </div>
-              </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
 
       <button
         onClick={() => setActiveTab('diary')}
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 700 }}
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
       >
-        <span>View Full Farm Timeline & Diary History</span>
+        <span>{t.viewFullDiaryTimeline || "View Full Farm Timeline & Diary History"}</span>
         <ArrowRight size={14} />
       </button>
     </div>

@@ -241,4 +241,6 @@ def test_ai_explain_incorporates_context():
     assert len(data["explanation_text"]) > 0
     # Must not leak keys or error traces
     assert "GEMINI_API_KEY" not in data["explanation_text"]
+    assert "GROQ_API_KEY" not in data["explanation_text"]
+    assert "gemini" not in data.get("provider_used", "").lower()
     assert "traceback" not in data["explanation_text"].lower()
