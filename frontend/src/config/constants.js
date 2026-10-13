@@ -19,7 +19,7 @@ export const API_BASE =
   import.meta.env.VITE_API_BASE || 
   (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
     ? '/api'
-    : 'https://kisansathi-ai-asap.onrender.com/api');
+    : 'https://kisansathi-ai-1-029i.onrender.com/api');
 
 export const COMMODITY_OPTIONS = [
   'Cotton',
