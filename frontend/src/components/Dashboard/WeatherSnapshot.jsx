@@ -34,8 +34,7 @@ export const WeatherSnapshot = () => {
           <CloudRain size={20} color="#0284c7" />
           <span>{t.navWeather}</span>
         </h3>
-        <LiveFallbackBadge source={weather.source || 'live'} sourceName={weather.source_name} />
-      </div>
+          <span className="badge badge-live">🟢 LIVE WEATHER</span>      </div>
 
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', marginBottom: '0.75rem' }}>
         <span style={{ fontSize: '2.2rem', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>
