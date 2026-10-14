@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
 
 from app.models import (
@@ -79,9 +79,15 @@ def get_me(session: Dict[str, Any] = Depends(require_authenticated_farmer)):
     "/logout",
     summary="Log out of the application"
 )
-def logout():
-    """Invalidates the client-side session."""
-    return {"status": "success", "message": "Successfully logged out."}
+def logout(authorization: Optional[str] = Header(None)):
+    """
+    Invalidates the client-side session and revokes the active Bearer token
+    on the server to prevent token reuse.
+    """
+    token = extract_token_from_header(authorization)
+    if token:
+        auth_service.revoke_token(token)
+    return {"status": "success", "message": "Successfully logged out and session revoked."}
 
 
 @router.get(

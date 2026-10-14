@@ -1,7 +1,8 @@
 import logging
 from typing import Any, Dict, Optional
-from fastapi import APIRouter, Query, status
+from fastapi import APIRouter, Depends, Query, status
 from pydantic import BaseModel, Field
+from app.services.auth_service import get_current_farmer_context, verify_farmer_access
 from app.services.crop_planner_service import crop_planner_service
 from app.services.recommendation_service import recommendation_service
 
@@ -47,19 +48,28 @@ class RecommendationResponse(BaseModel):
 @router.get(
     "/{farmer_id}",
     response_model=RecommendationResponse,
-    summary="Get personalized recommendation synthesizing farmer diary, weather, and mandi prices"
+    summary="Get personalized recommendation synthesizing farmer diary, weather, and mandi prices (With IDOR Check)"
 )
-def get_recommendation(farmer_id: str):
-    return recommendation_service.get_recommendation(farmer_id)
+def get_recommendation(
+    farmer_id: str,
+    session: Optional[Dict[str, Any]] = Depends(get_current_farmer_context)
+):
+    target_id = verify_farmer_access(farmer_id, session)
+    return recommendation_service.get_recommendation(target_id)
 
 
 @router.post(
     "/{farmer_id}/acknowledge",
-    summary="Persist farmer action acknowledgement or postponement to SQLite"
+    summary="Persist farmer action acknowledgement or postponement to SQLite (With IDOR Check)"
 )
-def acknowledge_recommendation(farmer_id: str, request: AcknowledgeRequest):
+def acknowledge_recommendation(
+    farmer_id: str,
+    request: AcknowledgeRequest,
+    session: Optional[Dict[str, Any]] = Depends(get_current_farmer_context)
+):
+    target_id = verify_farmer_access(farmer_id, session)
     return recommendation_service.acknowledge_action(
-        farmer_id=farmer_id,
+        farmer_id=target_id,
         action_key=request.action_key or "postpone_action",
         status_str=request.status or "postponed",
         postponed_to_date=request.postponed_to_date
@@ -68,12 +78,17 @@ def acknowledge_recommendation(farmer_id: str, request: AcknowledgeRequest):
 
 @router.post(
     "/{farmer_id}/crop-plan",
-    summary="On-demand crop planning assistant (only runs on explicit farmer request)"
+    summary="On-demand crop planning assistant (With IDOR Check)"
 )
-def suggest_crop_plan_post(farmer_id: str, request: Optional[CropPlanRequest] = None):
+def suggest_crop_plan_post(
+    farmer_id: str,
+    request: Optional[CropPlanRequest] = None,
+    session: Optional[Dict[str, Any]] = Depends(get_current_farmer_context)
+):
+    target_id = verify_farmer_access(farmer_id, session)
     req_dict = request.model_dump() if request else {}
     return crop_planner_service.suggest_crop_plan(
-        farmer_id=farmer_id,
+        farmer_id=target_id,
         state=req_dict.get("state"),
         district=req_dict.get("district"),
         land_size_acres=req_dict.get("land_size_acres"),
@@ -85,13 +100,15 @@ def suggest_crop_plan_post(farmer_id: str, request: Optional[CropPlanRequest] = 
 
 @router.get(
     "/{farmer_id}/crop-plan",
-    summary="On-demand crop planning assistant via GET (only runs on explicit farmer request)"
+    summary="On-demand crop planning assistant via GET (With IDOR Check)"
 )
 def suggest_crop_plan_get(
     farmer_id: str,
-    season: Optional[str] = Query(None, description="Optional season: kharif, rabi")
+    season: Optional[str] = Query(None, description="Optional season: kharif, rabi"),
+    session: Optional[Dict[str, Any]] = Depends(get_current_farmer_context)
 ):
+    target_id = verify_farmer_access(farmer_id, session)
     return crop_planner_service.suggest_crop_plan(
-        farmer_id=farmer_id,
+        farmer_id=target_id,
         season_override=season
     )

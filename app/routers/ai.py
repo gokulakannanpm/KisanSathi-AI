@@ -4,8 +4,9 @@ import os
 import re
 import time
 from typing import Any, Dict, List, Optional, Tuple
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
+from app.services.auth_service import get_current_farmer_context, verify_farmer_access
 
 from groq import (
     Groq,
@@ -339,10 +340,14 @@ def _call_groq_api(
 @router.post(
     "/explain",
     response_model=ExplainResponse,
-    summary="Get detailed AI explanation for recommendations and advisories via Groq"
+    summary="Get detailed AI explanation for recommendations and advisories via Groq (With IDOR Protection)"
 )
-def explain_recommendation(request: ExplainRequest):
-    farmer_id = sanitize_input(request.farmer_id or "demo_farmer_01", 60)
+def explain_recommendation(
+    request: ExplainRequest,
+    session: Optional[Dict[str, Any]] = Depends(get_current_farmer_context)
+):
+    requested_farmer_id = sanitize_input(request.farmer_id or "demo_farmer_01", 60)
+    farmer_id = verify_farmer_access(requested_farmer_id, session)
     raw_question = sanitize_input(request.question, 500)
     question = raw_question if raw_question else None
     raw_mode = (sanitize_input(request.mode or "qa", 30)).lower()

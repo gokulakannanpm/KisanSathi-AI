@@ -112,6 +112,15 @@ class ActionAcknowledgement(Base):
     farmer = relationship("Farmer", back_populates="acknowledgements")
 
 
+class RevokedToken(Base):
+    __tablename__ = "revoked_tokens"
+
+    token_hash = Column(String, primary_key=True, index=True)
+    revoked_at = Column(DateTime, default=datetime.utcnow)
+    expires_at = Column(DateTime, nullable=False, index=True)
+
+
+
 # --- Database Schema Migration Helper ---
 
 def init_db():

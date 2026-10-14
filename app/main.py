@@ -1,3 +1,4 @@
+import os
 from dotenv import load_dotenv
 load_dotenv(override=True)
 
@@ -11,12 +12,35 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Enable CORS for React Frontend (Member 4)
+# Secure CORS Configuration for React Frontend & Mobile WebView
+DEFAULT_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "https://kisansathi-ai-1-029i.onrender.com"
+]
+
+env_origins = os.getenv("ALLOWED_ORIGINS", "").strip()
+if env_origins:
+    if env_origins == "*":
+        allowed_origins = ["*"]
+        allow_creds = False
+    else:
+        configured = [o.strip().rstrip("/") for o in env_origins.split(",") if o.strip()]
+        allowed_origins = list(dict.fromkeys(DEFAULT_ORIGINS + configured))
+        allow_creds = True
+else:
+    allowed_origins = DEFAULT_ORIGINS
+    allow_creds = True
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_origins=allowed_origins,
+    allow_credentials=allow_creds,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"],
     allow_headers=["*"],
 )
 

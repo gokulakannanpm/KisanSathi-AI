@@ -1,8 +1,9 @@
 import logging
 from typing import Any, Dict, List, Optional
-from fastapi import APIRouter, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from pydantic import BaseModel, Field
 
+from app.services.auth_service import get_current_farmer_context, verify_farmer_access
 from app.services.farmer_service import farmer_service
 from app.services.scheme_engine import scheme_engine
 from app.services.tts_service import tts_service
@@ -66,6 +67,7 @@ class TTSAudioResponse(BaseModel):
 
 def _resolve_farmer_profile(
     farmer_id: Optional[str] = None,
+    session: Optional[Dict[str, Any]] = None,
     land_acres: Optional[float] = None,
     crop: Optional[str] = None,
     state: Optional[str] = None,
@@ -78,24 +80,26 @@ def _resolve_farmer_profile(
     """
     Resolves farmer profile context from DB (if available), demo farmer JSON,
     or directly supplied query parameters.
+    Enforces authorization check if a registered farmer ID is requested.
     """
     profile: Dict[str, Any] = {}
 
     # Try to load real farmer profile if farmer_id is specified
     if farmer_id:
+        target_id = verify_farmer_access(farmer_id, session)
         try:
-            real_profile = farmer_service.get_farmer_profile(farmer_id)
+            real_profile = farmer_service.get_farmer_profile(target_id)
             if real_profile:
                 profile.update(real_profile)
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Failed to fetch farmer profile for '{farmer_id}': {e}")
+            logger.error(f"Failed to fetch farmer profile for '{target_id}': {e}")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Farmer profile '{farmer_id}' not found."
+                detail=f"Farmer profile '{target_id}' not found."
             )
-        profile["id"] = farmer_id
+        profile["id"] = target_id
     elif any(x is not None for x in [land_acres, crop, state, category]):
         # Farmer context constructed on-the-fly from query parameters
         profile["id"] = "custom_query_farmer"
@@ -135,10 +139,12 @@ def get_schemes(
     land_acres: Optional[float] = Query(None, description="Optional landholding override in acres"),
     crop: Optional[str] = Query(None, description="Optional crop override (e.g. wheat, cotton)"),
     state: Optional[str] = Query(None, description="Optional state filter (e.g. Maharashtra, Tamil Nadu)"),
-    category: Optional[str] = Query(None, description="Optional farmer category (marginal, small, medium, large)")
+    category: Optional[str] = Query(None, description="Optional farmer category (marginal, small, medium, large)"),
+    session: Optional[Dict[str, Any]] = Depends(get_current_farmer_context)
 ):
     farmer_profile = _resolve_farmer_profile(
         farmer_id=farmer_id,
+        session=session,
         land_acres=land_acres,
         crop=crop,
         state=state,
@@ -183,7 +189,8 @@ def get_scheme_by_id(
     language: str = Query("en", pattern="^(en|hi|ta|mr)$", description="Language code"),
     land_acres: Optional[float] = Query(None),
     crop: Optional[str] = Query(None),
-    state: Optional[str] = Query(None)
+    state: Optional[str] = Query(None),
+    session: Optional[Dict[str, Any]] = Depends(get_current_farmer_context)
 ):
     scheme = scheme_engine.get_scheme_by_id(scheme_id)
     if not scheme:
@@ -194,6 +201,7 @@ def get_scheme_by_id(
 
     farmer_profile = _resolve_farmer_profile(
         farmer_id=farmer_id,
+        session=session,
         land_acres=land_acres,
         crop=crop,
         state=state
@@ -223,7 +231,8 @@ def check_scheme_eligibility(
     owns_land: Optional[bool] = Query(None, description="Whether farmer owns cultivable land"),
     has_irrigation: Optional[bool] = Query(None, description="Whether farm has assured irrigation"),
     is_tax_payer: Optional[bool] = Query(None, description="Whether farmer is an income-tax payer"),
-    age: Optional[int] = Query(None, description="Farmer age")
+    age: Optional[int] = Query(None, description="Farmer age"),
+    session: Optional[Dict[str, Any]] = Depends(get_current_farmer_context)
 ):
     scheme = scheme_engine.get_scheme_by_id(scheme_id)
     if not scheme:
@@ -234,6 +243,7 @@ def check_scheme_eligibility(
 
     farmer_profile = _resolve_farmer_profile(
         farmer_id=farmer_id,
+        session=session,
         land_acres=land_acres,
         crop=crop,
         state=state,

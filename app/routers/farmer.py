@@ -12,6 +12,7 @@ from app.services.auth_service import (
     extract_token_from_header,
     get_current_farmer_context,
     require_authenticated_farmer,
+    verify_farmer_access,
 )
 from app.services.farmer_service import farmer_service
 
@@ -22,38 +23,8 @@ router = APIRouter(
     tags=["Farmer Profile & Diary"]
 )
 
-
-def _verify_farmer_access(
-    requested_farmer_id: str,
-    session: Optional[Dict[str, Any]]
-) -> str:
-    """
-    Verifies that the requested farmer_id is authorized for the caller.
-    Demo profiles are accessible for demonstration/simulator use.
-    Registered profiles require an authenticated session matching that exact farmer.
-    Prevents Insecure Direct Object Reference (IDOR) attacks.
-    """
-    # 1. Allow demo profiles
-    if requested_farmer_id in farmer_service.DEFAULT_TEMPLATES:
-        return requested_farmer_id
-
-    # 2. Registered profiles require valid session
-    if not session:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authentication required to access registered farmer records.",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
-
-    # 3. Session farmer_id must strictly match
-    authed_farmer_id = session.get("farmer_id")
-    if authed_farmer_id != requested_farmer_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Access denied: You do not have permission to view or modify another farmer's private records."
-        )
-
-    return authed_farmer_id
+# Centralized IDOR authorization check
+_verify_farmer_access = verify_farmer_access
 
 
 # --- Profile Endpoints ---

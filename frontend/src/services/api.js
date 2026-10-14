@@ -73,9 +73,13 @@ export const apiService = {
   },
 
   logoutFarmer: async () => {
+    const headers = getAuthHeaders();
     sessionStorage.removeItem('kisansathi_token');
     try {
-      await fetch(`${API_BASE}/auth/logout`, { method: 'POST' });
+      await fetch(`${API_BASE}/auth/logout`, {
+        method: 'POST',
+        headers
+      });
     } catch {
       // Ignored
     }
@@ -223,7 +227,9 @@ export const apiService = {
   // 5. Hero Personalized Recommendation
   getRecommendation: async (farmerId = DEFAULT_FARMER_ID) => {
     try {
-      const res = await fetch(`${API_BASE}/recommendation/${farmerId}`);
+      const res = await fetch(`${API_BASE}/recommendation/${farmerId}`, {
+        headers: getAuthHeaders()
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       isBackendAvailable = true;
@@ -238,7 +244,10 @@ export const apiService = {
     try {
       const res = await fetch(`${API_BASE}/recommendation/${farmerId}/acknowledge`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
+        },
         body: JSON.stringify(payload)
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -254,7 +263,9 @@ export const apiService = {
   // 7. Multilingual Government Schemes
   getSchemes: async (farmerId = DEFAULT_FARMER_ID, language = 'en') => {
     try {
-      const res = await fetch(`${API_BASE}/schemes?farmer_id=${farmerId}&language=${language}`);
+      const res = await fetch(`${API_BASE}/schemes?farmer_id=${farmerId}&language=${language}`, {
+        headers: getAuthHeaders()
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       isBackendAvailable = true;
@@ -267,7 +278,9 @@ export const apiService = {
   // 8. Scheme Eligibility Check
   getSchemeEligibility: async (schemeId, farmerId = DEFAULT_FARMER_ID, language = 'en') => {
     try {
-      const res = await fetch(`${API_BASE}/schemes/${schemeId}/eligibility?farmer_id=${farmerId}&language=${language}`);
+      const res = await fetch(`${API_BASE}/schemes/${schemeId}/eligibility?farmer_id=${farmerId}&language=${language}`, {
+        headers: getAuthHeaders()
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       isBackendAvailable = true;
@@ -288,7 +301,10 @@ export const apiService = {
     try {
       const res = await fetch(`${API_BASE}/recommendation/${farmerId}/crop-plan`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
+        },
         body: JSON.stringify(options)
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -345,7 +361,10 @@ export const apiService = {
     try {
       const res = await fetch(`${API_BASE}/ai/explain`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
+        },
         body: JSON.stringify(contextPayload),
         signal: controller.signal
       });

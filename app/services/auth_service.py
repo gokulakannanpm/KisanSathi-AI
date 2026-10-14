@@ -1,3 +1,4 @@
+import hashlib
 import json
 import logging
 import os
@@ -15,6 +16,7 @@ from app.models import (
     Farmer,
     LoginRequest,
     RegisterRequest,
+    RevokedToken,
     SessionLocal,
     User,
 )
@@ -23,7 +25,43 @@ from app.services.farmer_service import farmer_service
 logger = logging.getLogger(__name__)
 
 # Security & Session Settings
-JWT_SECRET = os.getenv("SECRET_KEY", "kisansathi-secure-farmer-jwt-secret-key-2026-prod-env")
+DEV_SECRET_FALLBACK = "kisansathi-dev-only-jwt-secret-not-for-production-use-2026"
+ENVIRONMENT = (os.getenv("ENVIRONMENT") or os.getenv("ENV") or "development").strip().lower()
+IS_PRODUCTION = ENVIRONMENT in ["production", "prod"] or os.getenv("RENDER") == "true"
+
+
+def get_jwt_secret() -> str:
+    """
+    Validates and returns the JWT signing secret.
+    In production (or Render), startup strictly fails if SECRET_KEY is missing,
+    uses the development fallback, or is less than 32 characters long.
+    Never logs or prints the secret.
+    """
+    secret = os.getenv("SECRET_KEY", "").strip()
+    if IS_PRODUCTION:
+        if not secret:
+            raise RuntimeError(
+                "CRITICAL SECURITY CONFIGURATION ERROR: 'SECRET_KEY' environment variable is required in production environments but was not set. Startup aborted."
+            )
+        if (
+            secret == DEV_SECRET_FALLBACK
+            or "kisansathi-secure-farmer-jwt-secret-key-2026-prod-env" in secret
+            or len(secret) < 32
+        ):
+            raise RuntimeError(
+                "CRITICAL SECURITY CONFIGURATION ERROR: 'SECRET_KEY' in production must be a cryptographically strong, non-default string of at least 32 characters. Startup aborted."
+            )
+        return secret
+    else:
+        if not secret:
+            logger.warning(
+                "Running with development fallback JWT secret. Do NOT use this configuration in production!"
+            )
+            return DEV_SECRET_FALLBACK
+        return secret
+
+
+JWT_SECRET = get_jwt_secret()
 JWT_ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_HOURS = 24
 
@@ -33,29 +71,34 @@ LOCKOUT_WINDOW_SECONDS = 300  # 5 minutes
 
 
 class LoginThrottler:
-    """In-memory rate limiter tracking failed login attempts per mobile number/IP."""
+    """Thread-safe in-memory rate limiter tracking failed login attempts per mobile number/IP."""
 
     def __init__(self):
+        import threading
+        self._lock = threading.Lock()
         self.attempts: Dict[str, List[float]] = {}
 
     def is_throttled(self, key: str) -> bool:
-        now = time.time()
-        # Filter timestamps within window
-        valid_timestamps = [t for t in self.attempts.get(key, []) if now - t < LOCKOUT_WINDOW_SECONDS]
-        self.attempts[key] = valid_timestamps
-        return len(valid_timestamps) >= MAX_FAILED_ATTEMPTS
+        with self._lock:
+            now = time.time()
+            valid_timestamps = [t for t in self.attempts.get(key, []) if now - t < LOCKOUT_WINDOW_SECONDS]
+            self.attempts[key] = valid_timestamps
+            return len(valid_timestamps) >= MAX_FAILED_ATTEMPTS
 
     def record_failure(self, key: str):
-        now = time.time()
-        if key not in self.attempts:
-            self.attempts[key] = []
-        self.attempts[key].append(now)
+        with self._lock:
+            now = time.time()
+            if key not in self.attempts:
+                self.attempts[key] = []
+            self.attempts[key].append(now)
 
     def record_success(self, key: str):
-        self.attempts.pop(key, None)
+        with self._lock:
+            self.attempts.pop(key, None)
 
     def reset_all(self):
-        self.attempts.clear()
+        with self._lock:
+            self.attempts.clear()
 
 
 throttler = LoginThrottler()
@@ -63,6 +106,91 @@ throttler = LoginThrottler()
 
 class AuthService:
     """Service handling farmer registration, secure password hashing, JWT sessions, and authorization."""
+
+    def __init__(self):
+        # In-memory revocation cache for fast lookups: token_hash -> expires_at_timestamp
+        self._revoked_cache: Dict[str, float] = {}
+
+    @staticmethod
+    def _hash_token(token: str) -> str:
+        """Computes SHA-256 hash of token to avoid storing raw JWT strings."""
+        return hashlib.sha256(token.strip().encode("utf-8")).hexdigest()
+
+    def revoke_token(self, token: str) -> None:
+        """
+        Durable token revocation:
+        Hashes token with SHA-256 and persists it to the SQLite `revoked_tokens` table.
+        Also caches in memory for instant lookups across restarts and multiple workers.
+        """
+        if not token or not token.strip():
+            return
+        token_hash = self._hash_token(token)
+        now_utc = datetime.now(timezone.utc)
+        expires_at = now_utc + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
+
+        try:
+            unverified = jwt.decode(token, options={"verify_signature": False})
+            if "exp" in unverified:
+                expires_at = datetime.fromtimestamp(unverified["exp"], tz=timezone.utc)
+        except Exception:
+            pass
+
+        # Update in-memory cache
+        self._revoked_cache[token_hash] = expires_at.timestamp()
+
+        # Persist to database
+        db: Session = SessionLocal()
+        try:
+            existing = db.query(RevokedToken).filter(RevokedToken.token_hash == token_hash).first()
+            if not existing:
+                revoked_record = RevokedToken(
+                    token_hash=token_hash,
+                    revoked_at=datetime.utcnow(),
+                    expires_at=expires_at.replace(tzinfo=None)
+                )
+                db.add(revoked_record)
+                db.commit()
+        except Exception as e:
+            db.rollback()
+            logger.warning(f"Could not persist revoked token to database: {e}")
+        finally:
+            db.close()
+
+    def is_token_revoked(self, token: str) -> bool:
+        """
+        Checks if a token has been revoked.
+        Checks fast in-memory cache first, then queries the durable SQLite blocklist.
+        Survives server restarts and synchronizes across worker processes sharing the database.
+        """
+        if not token or not token.strip():
+            return True
+        token_hash = self._hash_token(token)
+        now_ts = time.time()
+
+        # 1. Check in-memory cache
+        if token_hash in self._revoked_cache:
+            if self._revoked_cache[token_hash] > now_ts:
+                return True
+            else:
+                self._revoked_cache.pop(token_hash, None)
+                return False
+
+        # 2. Check durable database table
+        db: Session = SessionLocal()
+        try:
+            record = db.query(RevokedToken).filter(
+                RevokedToken.token_hash == token_hash,
+                RevokedToken.expires_at > datetime.utcnow()
+            ).first()
+            if record:
+                self._revoked_cache[token_hash] = record.expires_at.timestamp()
+                return True
+            return False
+        except Exception as e:
+            logger.debug(f"Error checking token revocation in DB: {e}")
+            return False
+        finally:
+            db.close()
 
     @staticmethod
     def normalize_phone(phone: str) -> str:
@@ -126,11 +254,31 @@ class AuthService:
         })
         return jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
-    @staticmethod
-    def decode_access_token(token: str) -> Dict[str, Any]:
-        """Decodes and validates a JWT token."""
+    def decode_access_token(self, token: str) -> Dict[str, Any]:
+        """
+        Decodes and validates a JWT token.
+        Enforces HS256 algorithm, expiry verification, signature verification,
+        server-side revocation check, and mandatory identity claims (sub, farmer_id).
+        """
+        if not token or self.is_token_revoked(token):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Session has been revoked or is invalid. Please log in again.",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
         try:
-            payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            payload = jwt.decode(
+                token,
+                JWT_SECRET,
+                algorithms=[JWT_ALGORITHM],
+                options={"require": ["exp", "iat", "sub"]}
+            )
+            if not payload.get("sub") or not payload.get("farmer_id"):
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid session token claims. Please log in.",
+                    headers={"WWW-Authenticate": "Bearer"}
+                )
             return payload
         except jwt.ExpiredSignatureError:
             raise HTTPException(
@@ -138,7 +286,7 @@ class AuthService:
                 detail="Session expired. Please log in again.",
                 headers={"WWW-Authenticate": "Bearer"}
             )
-        except jwt.PyJWTError:
+        except (jwt.PyJWTError, Exception):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid session token. Please log in.",
@@ -404,3 +552,37 @@ def require_authenticated_farmer(authorization: Optional[str] = Header(None)) ->
             headers={"WWW-Authenticate": "Bearer"}
         )
     return auth_service.decode_access_token(token)
+
+
+def verify_farmer_access(
+    requested_farmer_id: str,
+    session: Optional[Dict[str, Any]]
+) -> str:
+    """
+    Verifies that the requested farmer_id is authorized for the caller.
+    Demo profiles (demo_farmer_01 to demo_farmer_04) are accessible for demonstration/simulator use.
+    Registered profiles require an authenticated session matching that exact farmer.
+    Prevents Insecure Direct Object Reference (IDOR) attacks across all endpoints.
+    """
+    # 1. Allow demo profiles
+    if requested_farmer_id in farmer_service.DEFAULT_TEMPLATES or requested_farmer_id.startswith("demo_"):
+        return requested_farmer_id
+
+    # 2. Registered profiles require valid session
+    if not session:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required to access registered farmer records.",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    # 3. Session farmer_id must strictly match
+    authed_farmer_id = session.get("farmer_id")
+    if authed_farmer_id != requested_farmer_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied: You do not have permission to view or modify another farmer's private records."
+        )
+
+    return authed_farmer_id
+
